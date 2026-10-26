@@ -1,0 +1,22 @@
+{
+  "v": 1,
+  "id": "bmarketx",
+  "label": "bMarketX",
+  "blurb": "Four colours on white, the market look",
+  "scheme": "light",
+  "accent": "#0064D2",
+  "hi": "#3A8DFF",
+  "lo": "#0050A8",
+  "on": "#FFFFFF",
+  "bg": "#FFFFFF",
+  "surface": "#F7F7F7",
+  "surface2": "#EFEFEF",
+  "nav": "#FFFFFF",
+  "text": "#191919",
+  "muted": "#5E5E5E",
+  "line": "#E5E5E5",
+  "success": "#3E7A00",
+  "danger": "#E53238",
+  "livery": { "stripe": "four-colour", "display": "Market Sans", "label": "Inter" },
+  "badge": "bmarketx"
+}

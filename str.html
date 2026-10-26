@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Store · bMarketX</title>
+<meta name="description" content="A bMarketX store.">
+<meta property="og:title" content="Store · bMarketX">
+<meta property="og:description" content="A bMarketX store.">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="store">
+<main class="wrap" id="root"><div class="empty">Loading store…</div></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+(async () => {
+  const { esc, api, after, card, pager, params } = BMX;
+  const handle = location.pathname.split('/')[2] || params.get('handle') || '';
+  const page = +params.get('page') || 1, sort = params.get('sort') || 'best', sq = params.get('sq') || '';
+  try {
+    const j = await api(`/api/store?handle=${encodeURIComponent(handle)}&page=${page}&sort=${sort}&q=${encodeURIComponent(sq)}`);
+    const s = j.store;
+    document.title = `${s.display_name} | bMarketX`;
+    const link = (o) => { const u = new URLSearchParams({ page, sort, sq, ...o }); return `/str/${s.handle}?${u}`; };
+    root.innerHTML = `
+      <section class="sthead">
+        ${s.logo ? `<img class="av" src="${esc(s.logo)}" alt="">` : '<div class="av"></div>'}
+        <div>
+          <h1>${esc(s.display_name)}</h1>
+          <div class="stats">
+            ${s.ebay_feedback ? `<span><b>${esc(s.ebay_feedback)}</b> positive feedback</span>` : ''}
+            ${s.ebay_sold ? `<span><b>${esc(s.ebay_sold)}</b> items sold</span>` : ''}
+            ${s.ebay_followers ? `<span><b>${esc(s.ebay_followers)}</b> followers</span>` : ''}
+          </div>
+          ${s.ebay_name ? `<div class="muted" style="font-size:12px;margin-top:4px">✓ Verified eBay seller · feedback carried over from eBay</div>` : ''}
+        </div>
+        <div class="act"><button class="btn ghost" type="button" data-share>Share</button><button class="btn ghost" type="button" data-soon2>Contact</button><button class="btn" type="button" data-soon2>♡ Save Seller</button></div>
+      </section>
+      <nav class="tabs"><a class="on" href="/str/${s.handle}">Shop</a><a href="#about">About</a><a href="#" data-soon2>Feedback</a></nav>
+      <form class="tools" action="/str/${s.handle}">
+        <div class="field" style="margin:0;flex:1;max-width:380px"><input name="sq" value="${esc(sq)}" placeholder="Search all ${j.total.toLocaleString()} items"></div>
+        <label class="pill">Sort: <select name="sort" onchange="this.form.submit()">
+          ${[['best', 'Best Match'], ['low', 'Price + Shipping: lowest first'], ['high', 'Price + Shipping: highest first'], ['new', 'Time: newly listed']].map(([v, t]) => `<option value="${v}" ${v === sort ? 'selected' : ''}>${t}</option>`).join('')}
+        </select></label>
+        <span class="pill">Buying Format: Buy It Now</span><span class="pill">Paid in BSV</span>
+      </form>
+      <div class="grid" id="items"></div>
+      ${pager(page, j.pages, (n) => link({ page: n }))}
+      ${s.tagline ? `<section id="about"><h2 class="sec">About</h2><p>${esc(s.tagline)}</p></section>` : ''}`;
+    after(j.items.map(card).join('') || '<div class="empty">No items match.</div>', items);
+    root.querySelector('[data-share]').onclick = () => (navigator.share ? navigator.share({ title: s.display_name, url: location.href }) : navigator.clipboard?.writeText(location.href).then(() => BMX.alertBar('Link copied.')));
+    root.querySelectorAll('[data-soon2]').forEach((b) => (b.onclick = (e) => { e.preventDefault(); BMX.alertBar('Coming soon.'); }));
+  } catch (e) {
+    root.innerHTML = e.status === 404
+      ? `<div class="empty"><h2>No store at /str/${esc(handle)} yet</h2><p>Is it your eBay store? <a class="u" href="/sell?store=${encodeURIComponent(handle)}">Move it to bMarketX</a>.</p></div>`
+      : `<div class="empty">${esc(e.message)}</div>`;
+  }
+})();
+</script>
+</body>
+</html>

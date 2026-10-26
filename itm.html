@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Item · bMarketX</title>
+<meta name="description" content="A bMarketX listing.">
+<meta property="og:title" content="Item · bMarketX">
+<meta property="og:description" content="A bMarketX listing.">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="item">
+<main class="wrap" id="root"><div class="empty">Loading…</div></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+(async () => {
+  const { esc, api, usd, fillBsv } = BMX;
+  const id = location.pathname.split('/')[2] || BMX.params.get('id');
+  try {
+    const { item: i, store: s } = await api('/api/item?id=' + encodeURIComponent(id));
+    document.title = `${i.title} | bMarketX`;
+    root.innerHTML = `<div class="itm">
+      <div class="main">${i.images[0] ? `<img src="${esc(i.images[0])}" alt="${esc(i.title)}">` : ''}</div>
+      <div>
+        <h1>${esc(i.title)}</h1>
+        <a class="seller" href="/str/${s.handle}">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : ''}<div><b>${esc(s.display_name)}</b><div class="muted" style="font-size:12px">${s.ebay_feedback ? esc(s.ebay_feedback) + ' positive' : ''}${s.ebay_sold ? ' · ' + esc(s.ebay_sold) + ' sold' : ''}</div></div></a>
+        <div><span class="price">US ${usd(i.price_cents)}</span>${i.was_cents ? `<span class="was">${usd(i.was_cents)}</span>` : ''}</div>
+        <div class="bsv" data-bsv="${i.price_cents}" style="font-size:14px"></div>
+        ${i.promo ? `<div class="promo" style="margin-top:6px">${esc(i.promo)}</div>` : ''}
+        <div class="row"><span class="muted">Condition:</span><b>${esc(i.condition || 'Used')}</b></div>
+        <div class="row"><span class="muted">Quantity:</span><span>${i.quantity} available</span></div>
+        <div class="buy">
+          <button class="btn wide" type="button" id="buy">Buy It Now</button>
+          <button class="btn ghost wide" type="button" data-soon3>Add to cart</button>
+          <button class="btn ghost wide" type="button" data-soon3>♡ Add to Watchlist</button>
+        </div>
+        <div class="note">Paid in BSV from your bWalletX. The price is set in US dollars and converted at the live BSV rate when you pay.</div>
+        ${i.description ? `<h2 class="sec">Item description from the seller</h2><p>${esc(i.description)}</p>` : ''}
+      </div></div>`;
+    root.querySelectorAll('[data-bsv]').forEach(fillBsv);
+    root.querySelectorAll('[data-soon3]').forEach((b) => (b.onclick = () => BMX.alertBar('Coming soon.')));
+    buy.onclick = () => BMX.alertBar('Checkout with bWalletX is the next thing being built. Nothing has been charged.');
+  } catch (e) { root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+})();
+</script>
+</body>
+</html>

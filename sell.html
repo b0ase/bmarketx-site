@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Move from eBay · bMarketX</title>
+<meta name="description" content="Bring your eBay store to bMarketX: same listings, same photos, same prices, paid in BSV.">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="sell">
+<main class="wrap"><div class="sell">
+  <h1>Move your eBay store to bMarketX</h1>
+  <p class="muted">Paste your store link. We copy your listings, photos, prices and feedback, and your store opens at bmarketx.com/str/yourstore. It takes about a minute.</p>
+  <form class="field" id="f"><input id="url" placeholder="https://www.ebay.com/str/yourstore" autocomplete="off" required><button class="btn" type="submit">Find my store</button></form>
+  <div id="out"></div>
+</div></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+(() => {
+  const { esc, api, after, usd } = BMX;
+  let store = null, signedIn = false;
+  fetch('/api/bwalletx/session', { credentials: 'same-origin' }).then((r) => r.json()).then((j) => { signedIn = !!j.identityKey; }).catch(() => {});
+  document.addEventListener('bmarketx-wallet', () => { signedIn = true; if (store) step2(); });
+  const pre = BMX.params.get('store'); if (pre) { url.value = pre; setTimeout(() => f.requestSubmit(), 0); }
+
+  f.onsubmit = async (e) => {
+    e.preventDefault();
+    out.innerHTML = '<p class="muted">Reading your eBay store…</p>';
+    try {
+      const s = await api('/api/import/ebay?store=' + encodeURIComponent(url.value));
+      store = s;
+      out.innerHTML = `
+        <section class="sthead">${s.logo ? `<img class="av" src="${esc(s.logo)}" alt="">` : ''}<div><h1>${esc(s.displayName)}</h1>
+          <div class="stats">${s.feedback ? `<span><b>${esc(s.feedback)}</b> positive feedback</span>` : ''}${s.sold ? `<span><b>${esc(s.sold)}</b> items sold</span>` : ''}${s.followers ? `<span><b>${esc(s.followers)}</b> followers</span>` : ''}</div>
+          <div class="muted">${s.total ? s.total.toLocaleString() + ' items' : s.items.length + ' items'} · ${esc(s.tagline || '')}</div></div></section>
+        <div id="next" style="margin:18px 0"></div>
+        <h2 class="sec">What your buyers will see</h2>
+        <div class="grid" id="prev"></div>`;
+      after(s.items.slice(0, 12).map((i) => BMX.card({ id: '', title: i.title, price_cents: i.priceCents, was_cents: i.wasCents, promo: i.promo, images: [i.image] })).join(''), prev);
+      prev.querySelectorAll('a').forEach((a) => a.removeAttribute('href'));
+      step1();
+    } catch (e2) { out.innerHTML = `<p class="err">${esc(e2.message)}</p>`; }
+  };
+
+  function step1() {
+    next.innerHTML = signedIn
+      ? `<button class="btn" id="mine">This is my store. Move it.</button>`
+      : `<div class="note"><b>Connect bWalletX to carry on.</b> Your wallet is your bMarketX account and where buyers pay you. Use the <b>Connect bWalletX</b> button at the top of the page.</div><p><a class="u" href="https://bwalletx.com/get">No wallet yet? Get bWalletX.</a></p>`;
+    document.getElementById('mine')?.addEventListener('click', step2);
+  }
+  async function step2(verify = false) {
+    try {
+      const r = await api('/api/import/claim', { method: 'POST', body: JSON.stringify({ store: store.name, verify }) });
+      if (r.verified) return step3(r.pages || store.pages);
+      next.innerHTML = `
+        <div class="note warn"><b>Prove it's your store.</b> Add this code anywhere in your eBay store description, then come back:
+          <p><span class="code">${esc(r.code)}</span></p>
+          eBay › My eBay › Selling › <b>Store</b> › Edit store › <b>Description</b>. Save. You can delete the code once the move is done.</div>
+        ${r.error ? `<p class="err">${esc(r.error)}</p>` : ''}
+        <p><button class="btn" id="chk">I've added it. Check now.</button></p>`;
+      chk.onclick = () => { chk.disabled = true; chk.textContent = 'Checking…'; step2(true); };
+    } catch (e) { next.innerHTML = `<p class="err">${esc(e.message)}</p>`; }
+  }
+  async function step3(pages) {
+    next.innerHTML = `<p><b>Verified.</b> Copying your listings…</p><div class="prog"><i id="bar"></i></div><p class="muted" id="msg"></p>`;
+    let n = 0;
+    for (let p = 1; p <= pages; p++) {
+      try {
+        const r = await api('/api/import/claim', { method: 'POST', body: JSON.stringify({ store: store.name, page: p }) });
+        n += r.imported; pages = r.pages || pages;
+      } catch (e) { msg.innerHTML = `<span class="err">Page ${p}: ${esc(e.message)}</span> Carrying on…`; }
+      bar.style.width = Math.round((p / pages) * 100) + '%';
+      msg.textContent = `${n.toLocaleString()} listings copied (page ${p} of ${pages})`;
+    }
+    next.innerHTML = `<div class="note"><b>Your store is live.</b> ${n.toLocaleString()} listings moved over.</div><p><a class="btn" href="/str/${esc(store.name)}">Open my bMarketX store</a></p>`;
+  }
+})();
+</script>
+</body>
+</html>
