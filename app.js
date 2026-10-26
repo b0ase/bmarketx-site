@@ -2,7 +2,7 @@
    script reads window.BMX. */
 (() => {
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  const logo = (w = 'bMarketX') => `<a class="logo" href="/" aria-label="bMarketX home">${[...w].map((c) => `<span>${c}</span>`).join('')}</a>`;
+  const logo = () => `<a class="logo" href="/" aria-label="bMarketX home"><img src="/brand/logo.svg" alt="bMarketX" height="34"></a>`;
   const params = new URLSearchParams(location.search);
 
   document.body.insertAdjacentHTML('afterbegin', `
