@@ -118,3 +118,17 @@ h2.sec { font-size: 22px; margin: 26px 0 12px; }
   .grid { grid-template-columns: repeat(2, 1fr); gap: 18px 12px; }
   .sthead .act { margin-left: 0; }
 }
+
+.drop { display: grid; gap: 4px; place-items: center; text-align: center; border: 2px dashed #B8B8B8; border-radius: 16px; padding: 36px 16px; cursor: pointer; background: var(--soft); }
+.drop.over { border-color: var(--blue); background: #F0F6FD; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+.tbl th, .tbl td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl td.n { text-align: right; white-space: nowrap; }
+.tblwrap { overflow-x: auto; max-height: 420px; border: 1px solid var(--line); border-radius: 12px; }
+.form2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+.form2 label { display: grid; gap: 4px; font-weight: 600; font-size: 13px; }
+.form2 input { border: 1px solid #8F8F8F; border-radius: 8px; padding: 0 12px; min-height: 44px; font-weight: 400; min-width: 0; }
+.form2 .pre { display: flex; align-items: center; border: 1px solid #8F8F8F; border-radius: 8px; overflow: hidden; }
+.form2 .pre span { padding: 0 0 0 12px; color: var(--muted); font-weight: 400; white-space: nowrap; }
+.form2 .pre input { border: 0; padding-left: 2px; }
+@media (max-width: 760px) { .form2 { grid-template-columns: 1fr; } }

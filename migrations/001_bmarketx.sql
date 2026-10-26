@@ -5,9 +5,8 @@ create table if not exists bmx_stores (
   display_name    text not null,
   tagline         text,
   logo            text,
-  ebay_name       text unique,                   -- set once the eBay store is proved
+  ebay_name       text unique,                   -- set once the eBay store is proved (code in its description)
   ebay_feedback   text, ebay_sold text, ebay_followers text,
-  verify_code     text,                          -- put in the eBay store description to prove it
   verified_at     timestamptz,
   created_at      timestamptz not null default now()
 );
@@ -15,7 +14,7 @@ create index if not exists bmx_stores_owner on bmx_stores (owner_key);
 
 create table if not exists bmx_listings (
   id              bigserial primary key,
-  store_handle    text not null references bmx_stores (handle) on delete cascade,
+  store_handle    text not null references bmx_stores (handle) on delete cascade on update cascade,
   title           text not null check (length(title) between 1 and 80),
   price_cents     integer not null check (price_cents > 0),
   was_cents       integer,
@@ -26,6 +25,8 @@ create table if not exists bmx_listings (
   images          jsonb not null default '[]',
   quantity        integer not null default 1 check (quantity >= 0),
   ebay_id         text,
+  sku             text,
+  source          text not null default 'ebay-csv' check (source in ('ebay-page','ebay-csv','bmarketx')),
   status          text not null default 'active' check (status in ('draft','active','sold','ended')),
   created_at      timestamptz not null default now(),
   unique (store_handle, ebay_id)

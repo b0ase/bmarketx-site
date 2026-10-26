@@ -13,21 +13,40 @@
 <body data-page="sell">
 <main class="wrap"><div class="sell">
   <h1>Move your eBay store to bMarketX</h1>
-  <p class="muted">Paste your store link. We copy your listings, photos, prices and feedback, and your store opens at bmarketx.com/str/yourstore. It takes about a minute.</p>
+  <p class="muted">Bring your listings, prices, quantities and photos across. Your store opens at bmarketx.com/str/yourstore and buyers pay you in BSV from bWalletX.</p>
+  <nav class="tabs" style="margin-top:18px"><a href="#csv" class="on" data-tab="csv">Upload CSV</a><a href="#link" data-tab="link">Store link</a></nav>
+  <section id="tab-csv">
+    <ol class="muted" style="padding-left:18px;margin:16px 0">
+      <li>On eBay open <b>Seller Hub › Reports › Downloads</b>, choose <b>All active listings</b> and download the CSV.</li>
+      <li>Drop the file here. It is read on your computer and only the listings are sent to us.</li>
+    </ol>
+    <label class="drop" id="drop"><input type="file" id="file" accept=".csv,text/csv" hidden><b>Drop your eBay CSV here</b><span class="muted">or click to choose a file</span></label>
+    <div id="csvOut"></div>
+  </section>
+  <section id="tab-link" hidden>
+  <p class="muted" style="margin-top:16px">Paste your store link. We copy your listings, photos, prices and feedback, and your store gets the <b>verified eBay seller</b> mark.</p>
   <form class="field" id="f"><input id="url" placeholder="https://www.ebay.com/str/yourstore" autocomplete="off" required><button class="btn" type="submit">Find my store</button></form>
   <div id="out"></div>
+  </section>
 </div></main>
 <script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/app.js"></script>
 <script src="/bwx.js"></script>
+<script type="module" src="/sell-csv.js"></script>
 <script>
+BMX.tab = (t) => {
+  document.querySelectorAll('[data-tab]').forEach((a) => a.classList.toggle('on', a.dataset.tab === t));
+  document.getElementById('tab-csv').hidden = t !== 'csv'; document.getElementById('tab-link').hidden = t !== 'link';
+};
+document.querySelectorAll('[data-tab]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); BMX.tab(a.dataset.tab); }));
+if (location.hash === '#link') BMX.tab('link');
 (() => {
   const { esc, api, after, usd } = BMX;
   let store = null, signedIn = false;
   fetch('/api/bwalletx/session', { credentials: 'same-origin' }).then((r) => r.json()).then((j) => { signedIn = !!j.identityKey; }).catch(() => {});
-  document.addEventListener('bmarketx-wallet', () => { signedIn = true; if (store) step2(); });
-  const pre = BMX.params.get('store'); if (pre) { url.value = pre; setTimeout(() => f.requestSubmit(), 0); }
+  document.addEventListener('bmarketx-wallet', () => { signedIn = true; if (store) step1(); });
+  const pre = BMX.params.get('store'); if (pre) { BMX.tab('link'); url.value = pre; setTimeout(() => f.requestSubmit(), 0); }
 
   f.onsubmit = async (e) => {
     e.preventDefault();
