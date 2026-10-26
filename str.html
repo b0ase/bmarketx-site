@@ -56,7 +56,7 @@
       <div class="grid" id="items"></div>
       ${pager(page, j.pages, (n) => link({ page: n }))}
       ${s.tagline ? `<section id="about"><h2 class="sec">About</h2><p>${esc(s.tagline)}</p></section>` : ''}`;
-    after(j.items.map(card).join('') || '<div class="empty">No items match.</div>', items);
+    after(j.items.map((x, k) => card(x, k)).join('') || '<div class="empty">No items match.</div>', items);
     root.querySelector('[data-share]').onclick = () => (navigator.share ? navigator.share({ title: s.display_name, url: location.href }) : navigator.clipboard?.writeText(location.href).then(() => BMX.alertBar('Link copied.')));
     root.querySelectorAll('[data-soon2]').forEach((b) => (b.onclick = (e) => { e.preventDefault(); BMX.alertBar('Coming soon.'); }));
   } catch (e) {

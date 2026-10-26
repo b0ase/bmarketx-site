@@ -131,3 +131,4 @@ h2.sec { font-size: 22px; margin: 26px 0 12px; }
 .form2 .pre span { padding: 0 0 0 12px; color: var(--muted); font-weight: 400; white-space: nowrap; }
 .form2 .pre input { border: 0; padding-left: 2px; }
 @media (max-width: 760px) { .form2 { grid-template-columns: 1fr; } }
+.card .img picture, .itm .main picture { display: contents; }

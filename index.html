@@ -38,7 +38,7 @@
 <script src="/app.js"></script>
 <script src="/bwx.js"></script>
 <script>
-BMX.api('/api/search').then((j) => BMX.after(j.items.length ? j.items.map(BMX.card).join('') : '<div class="empty">No listings yet. <a class="u" href="/sell">Be the first store.</a></div>', latest))
+BMX.api('/api/search').then((j) => BMX.after(j.items.length ? j.items.map((x, k) => BMX.card(x, k)).join('') : '<div class="empty">No listings yet. <a class="u" href="/sell">Be the first store.</a></div>', latest))
   .catch(() => BMX.after('<div class="empty">No listings yet. <a class="u" href="/sell">Be the first store.</a></div>', latest));
 </script>
 </body>

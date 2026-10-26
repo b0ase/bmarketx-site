@@ -29,7 +29,7 @@
     const { item: i, store: s } = await api('/api/item?id=' + encodeURIComponent(id));
     document.title = `${i.title} | bMarketX`;
     root.innerHTML = `<div class="itm">
-      <div class="main">${i.images[0] ? `<img src="${esc(i.images[0])}" alt="${esc(i.title)}">` : ''}</div>
+      <div class="main">${i.images[0] ? BMX.picture(i.images[0], 800, `alt="${esc(i.title)}" fetchpriority="high"`) : ''}</div>
       <div>
         <h1>${esc(i.title)}</h1>
         <a class="seller" href="/str/${s.handle}">${s.logo ? `<img src="${esc(s.logo)}" alt="">` : ''}<div><b>${esc(s.display_name)}</b><div class="muted" style="font-size:12px">${s.ebay_feedback ? esc(s.ebay_feedback) + ' positive' : ''}${s.ebay_sold ? ' · ' + esc(s.ebay_sold) + ' sold' : ''}</div></div></a>

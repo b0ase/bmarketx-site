@@ -42,8 +42,15 @@
   function fillBsv(el) { if (usdPerBsv) el.textContent = `≈ ${(+el.dataset.bsv / 100 / usdPerBsv).toFixed(5)} BSV`; }
   const usd = (c) => '$' + (c / 100).toFixed(2);
 
-  const card = (i) => `<a class="card" href="/itm/${i.id}">
-    <div class="img">${i.images?.[0] ? `<img loading="lazy" src="${esc(i.images[0])}" alt="">` : ''}<button class="heart" type="button" aria-label="Watch" onclick="event.preventDefault()">♡</button></div>
+  // eBay photos come in sizes (s-l140 … s-l1600) and as WebP; a grid card needs ~500px, not the 775 KB original
+  const img = (u, px) => {
+    const m = /^(https:\/\/i\.ebayimg\.com\/.+\/s-l)\d+\.(jpg|jpeg|png|webp)$/i.exec(u || '');
+    return m ? { src: `${m[1]}${px}.jpg`, webp: `${m[1]}${px}.webp` } : { src: u };
+  };
+  const picture = (u, px, attrs = '') => { const p = img(u, px);
+    return `<picture>${p.webp ? `<source srcset="${esc(p.webp)}" type="image/webp">` : ''}<img src="${esc(p.src)}" decoding="async" ${attrs}></picture>`; };
+  const card = (i, k = 0) => `<a class="card" href="/itm/${i.id}">
+    <div class="img">${i.images?.[0] ? picture(i.images[0], 500, `alt="" ${k < 8 ? 'fetchpriority="high"' : 'loading="lazy"'}`) : ''}<button class="heart" type="button" aria-label="Watch" onclick="event.preventDefault()">♡</button></div>
     <div class="t">${esc(i.title)}</div>
     <div><span class="price">${usd(i.price_cents)}</span>${i.was_cents ? `<span class="was">${usd(i.was_cents)}</span>` : ''}</div>
     <div class="bsv" data-bsv="${i.price_cents}"></div>
@@ -59,5 +66,5 @@
   const pager = (page, pages, href) => pages <= 1 ? '' : `<nav class="pager">${Array.from({ length: Math.min(pages, 10) }, (_, k) => k + 1)
     .map((n) => `<a class="${n === page ? 'on' : ''}" href="${href(n)}">${n}</a>`).join('')}</nav>`;
 
-  window.BMX = { esc, usd, card, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
+  window.BMX = { esc, usd, card, picture, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
 })();

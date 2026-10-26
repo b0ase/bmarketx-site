@@ -27,7 +27,7 @@
 <script>
 const qq = BMX.params.get('q') || '';
 if (qq) h.textContent = 'Results for "' + qq + '"';
-BMX.api('/api/search?q=' + encodeURIComponent(qq)).then((j) => { h.textContent += ' · ' + j.total.toLocaleString() + ' results'; BMX.after(j.items.map(BMX.card).join('') || '<div class="empty">Nothing matched. Try fewer words.</div>', res); })
+BMX.api('/api/search?q=' + encodeURIComponent(qq)).then((j) => { h.textContent += ' · ' + j.total.toLocaleString() + ' results'; BMX.after(j.items.map((x, k) => BMX.card(x, k)).join('') || '<div class="empty">Nothing matched. Try fewer words.</div>', res); })
   .catch((e) => BMX.after('<div class="empty">' + BMX.esc(e.message) + '</div>', res));
 </script>
 </body>
