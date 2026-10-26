@@ -11,10 +11,18 @@ export async function who(req) {
 }
 export const q = (v) => encodeURIComponent(String(v));
 export async function rows(r) {
-  if (!r.ok) throw Object.assign(new Error(`database ${r.status}: ${(await r.text()).slice(0, 200)}`), { status: 502 });
+  if (!r.ok) {
+    console.error('database', r.status, (await r.text()).slice(0, 500));   // details stay in the server log
+    throw Object.assign(new Error('The market database had a problem. Try again in a minute.'), { status: 502 });
+  }
   return r.status === 204 ? [] : r.json();
 }
-export const fail = (res, e) => res.status(e.status || 500).json({ error: e.message || 'Something went wrong.' });
+export const fail = (res, e) => {
+  if (!e.status) console.error(e);
+  return res.status(e.status || 500).json({ error: e.status ? e.message : 'Something went wrong. Try again.' });
+};
+/** State-changing calls must come from our own pages (on top of the SameSite cookie). */
+export { originOk } from './bwalletx/_auth.js';
 
 const clip = (v, n) => (v == null || v === '' ? null : String(v).slice(0, n));
 const HTTPS_IMG = /^https:\/\/[^\s"'<>]+$/i;

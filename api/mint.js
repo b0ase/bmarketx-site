@@ -2,10 +2,11 @@
 // Records the tokens a seller's wallet just minted for their own listings. The wallet built, signed and paid for
 // the transaction; we only note which outpoint is which listing. Only the store owner can record.
 import { db } from './_db.js';
-import { body, fail, q, rows, who } from './_util.js';
+import { body, fail, originOk, q, rows, who } from './_util.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!originOk(req.headers.origin)) return res.status(403).json({ error: 'Wrong origin.' });
   res.setHeader('Cache-Control', 'no-store');
   const me = await who(req);
   if (!me) return res.status(401).json({ error: 'Connect bWalletX first.' });

@@ -3,11 +3,12 @@
 // per call; the page sends batches. A CSV store is unverified until the eBay store is proved (claim.js), and a proved
 // eBay owner takes the handle if they share it.
 import { db } from '../_db.js';
-import { body, fail, q, rows, toRow, who } from '../_util.js';
+import { body, fail, originOk, q, rows, toRow, who } from '../_util.js';
 
 const HANDLE = /^[a-z0-9][a-z0-9._-]{1,63}$/;
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!originOk(req.headers.origin)) return res.status(403).json({ error: 'Wrong origin.' });
   res.setHeader('Cache-Control', 'no-store');
   const me = await who(req);
   if (!me) return res.status(401).json({ error: 'Connect bWalletX first.' });

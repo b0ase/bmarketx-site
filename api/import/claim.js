@@ -8,12 +8,13 @@ import { createHmac, randomBytes } from 'node:crypto';
 import { fetchStore, storeName } from '../../lib/ebay.js';
 import { db } from '../_db.js';
 import { secret } from '../bwalletx/_auth.js';
-import { body, fail, q, rows, toRow, who } from '../_util.js';
+import { body, fail, originOk, q, rows, toRow, who } from '../_util.js';
 
 const codeFor = (name, me) => 'bmx-' + createHmac('sha256', secret()).update(`ebay-proof\n${name}\n${me}`).digest('hex').slice(0, 6);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!originOk(req.headers.origin)) return res.status(403).json({ error: 'Wrong origin.' });
   res.setHeader('Cache-Control', 'no-store');
   const me = await who(req);
   if (!me) return res.status(401).json({ error: 'Connect bWalletX first.' });
