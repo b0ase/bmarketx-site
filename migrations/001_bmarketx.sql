@@ -27,6 +27,9 @@ create table if not exists bmx_listings (
   ebay_id         text,
   sku             text,
   source          text not null default 'ebay-csv' check (source in ('ebay-page','ebay-csv','bmarketx')),
+  token_id        text unique,                   -- BSV-21 <txid>_<vout>: the listing, minted by the seller's own wallet
+  icon_origin     text,                          -- the photo inscription it uses as its icon
+  minted_at       timestamptz,
   status          text not null default 'active' check (status in ('draft','active','sold','ended')),
   created_at      timestamptz not null default now(),
   unique (store_handle, ebay_id)

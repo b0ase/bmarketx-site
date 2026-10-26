@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mint my store · bMarketX</title>
+<meta name="description" content="Put your bMarketX listings on Bitcoin, owned by your own bWalletX.">
+<link rel="icon" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="mint">
+<main class="wrap"><div class="sell">
+  <h1>Mint my store</h1>
+  <p class="muted">Each listing becomes a token in your own bWalletX: its photo goes on chain, and the token supply is your stock. You own it, not bMarketX. When it sells, the token goes to the buyer as their receipt and you post the item.</p>
+  <div id="out"><p class="muted">Loading your stores…</p></div>
+</div></main>
+<script src="https://unpkg.com/@bsv/sdk@2.8.10/dist/umd/bundle.js"></script>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script type="module">
+import { loadPhoto, mintBatch, quoteSats, symFor } from '/lib/mint.js';
+const { esc, api, usd } = window.BMX;
+const out = document.getElementById('out');
+const BATCH = 10;
+let data = null;
+
+async function load() {
+  try { data = await api('/api/my'); render(); }
+  catch (e) {
+    out.innerHTML = e.status === 401
+      ? `<div class="note"><b>Connect bWalletX</b> with the button at the top of the page to see your stores.</div>`
+      : `<p class="err">${esc(e.message)}</p>`;
+  }
+}
+document.addEventListener('bmarketx-wallet', load);
+
+function render() {
+  if (!data.stores.length) { out.innerHTML = `<div class="note">You have no store yet. <a class="u" href="/sell">Move your eBay store</a> first.</div>`; return; }
+  out.innerHTML = data.stores.map((s, k) => {
+    const todo = s.listings.filter((l) => !l.token_id), done = s.listings.length - todo.length;
+    return `<section class="step" style="margin:18px 0">
+      <b>${esc(s.display_name)}</b> <span class="muted">bmarketx.com/str/${esc(s.handle)}</span>
+      <p>${done.toLocaleString()} of ${s.listings.length.toLocaleString()} listings minted.</p>
+      ${todo.length ? `<p class="muted" id="q${k}">Working out the cost…</p>
+        <p style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn ghost" data-one="${k}">Mint one first (test)</button><button class="btn" data-all="${k}">Mint all ${todo.length.toLocaleString()}</button></p>
+        <div id="p${k}"></div>` : '<p><b>All minted.</b></p>'}
+    </section>`;
+  }).join('');
+  data.stores.forEach((s, k) => {
+    const todo = s.listings.filter((l) => !l.token_id);
+    if (!todo.length) return;
+    quote(todo, document.getElementById('q' + k));
+    out.querySelector(`[data-one="${k}"]`).onclick = () => run(todo.slice(0, 1), k);
+    out.querySelector(`[data-all="${k}"]`).onclick = () => run(todo, k);
+  });
+}
+
+// Measure a sample of real photos and scale up; it's a quote, the wallet shows the exact fee before you approve.
+async function quote(todo, el) {
+  const sample = todo.slice(0, 5); const sizes = [];
+  for (const l of sample) { try { const p = await loadPhoto(l); sizes.push(p ? p.body.length : 0); } catch { sizes.push(60_000); } }
+  const per = quoteSats(sizes) / sample.length, sats = Math.ceil(per * todo.length);
+  await window.BMX.priceReady;
+  const rate = window.BMX.usdPerBsv;
+  el.textContent = `About ${sats.toLocaleString()} sats${rate ? ` (≈ $${((sats / 1e8) * rate).toFixed(2)})` : ''} in network fees for ${todo.length.toLocaleString()} listings, paid from your wallet. bWalletX asks you once per ${BATCH}.`;
+}
+
+async function wallet() {
+  if (window.bmxWallet) return window.bmxWallet;
+  const { wallet } = await window.bWalletXConnect.connectBwalletX({ reusePairing: true });
+  return (window.bmxWallet = wallet);
+}
+
+async function run(list, k) {
+  const p = document.getElementById('p' + k);
+  out.querySelectorAll('button').forEach((b) => (b.disabled = true));
+  p.innerHTML = `<div class="prog"><i id="bar${k}"></i></div><p class="muted" id="m${k}"></p>`;
+  const bar = document.getElementById('bar' + k), msg = document.getElementById('m' + k);
+  let n = 0;
+  try {
+    const w = await wallet();
+    for (let i = 0; i < list.length; i += BATCH) {
+      const batch = list.slice(i, i + BATCH);
+      const r = await mintBatch(w, batch, (t) => (msg.textContent = t));
+      await api('/api/mint', { method: 'POST', body: JSON.stringify(r) });
+      n += batch.length;
+      bar.style.width = Math.round((n / list.length) * 100) + '%';
+      msg.innerHTML = `${n.toLocaleString()} of ${list.length.toLocaleString()} minted · last: <a class="u" target="_blank" rel="noopener" href="https://whatsonchain.com/tx/${r.txid}">${r.txid.slice(0, 10)}…</a>`;
+    }
+    p.insertAdjacentHTML('beforeend', `<div class="note"><b>Done.</b> ${n.toLocaleString()} listings are now tokens in your bWalletX (Wallet › Tokens).</div>`);
+  } catch (e) {
+    p.insertAdjacentHTML('beforeend', `<p class="err">${esc(e.message || 'Minting stopped.')}</p><p class="muted">${n.toLocaleString()} minted before this. Press the button again to carry on from where it stopped.</p>`);
+  }
+  setTimeout(load, 1500);
+}
+load();
+</script>
+</body>
+</html>
