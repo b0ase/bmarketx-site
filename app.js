@@ -38,6 +38,15 @@
     <span>Paid in BSV with <a class="u" href="https://bwalletx.com">bWalletX</a> · a b*X app from The Bitcoin Corporation</span>
     <a href="/sell">Move your eBay store</a><a href="https://bwalletx.com/privacy">Privacy</a><a href="https://bwalletx.com/terms">Terms</a>
   </div></div>`);
+  // bAds: square ads in a left column on browsing pages (never on item, checkout or account pages)
+  const railMain = document.body.hasAttribute('data-rail') && document.querySelector('main');
+  if (railMain) {
+    const grid = document.createElement('div'); grid.className = 'wrap railed';
+    railMain.before(grid);
+    grid.innerHTML = '<aside class="railcol" aria-label="Sponsored"><div data-bads-rail data-site="bmarketx" data-rating="pg" data-slots="4"></div></aside>';
+    grid.prepend(railMain);
+    const s = document.createElement('script'); s.src = 'https://www.bchatx.com/bads/rail.js'; s.async = true; document.body.appendChild(s);
+  }
   const wm = document.querySelector('[data-watchmenu]');
   if (wm) wm.parentElement.addEventListener('mouseenter', () => {
     const w = watch.get().slice(0, 4);

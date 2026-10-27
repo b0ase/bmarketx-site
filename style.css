@@ -240,3 +240,13 @@ h2.sec { font-size: 22px; margin: 26px 0 12px; }
 .order .acts .btn { min-height: 34px; }
 .order address { font-style: normal; white-space: pre-line; font-size: 14px; }
 [hidden] { display: none !important; }
+
+/* bAds rail: left column on desktop, a swipe row under the page on phones */
+.railed { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.railed > main.wrap { padding: 0; max-width: none; margin: 0; min-width: 0; }
+.railcol { padding: 16px 0 24px; }
+@media (min-width: 900px) {
+  .railed { grid-template-columns: 180px minmax(0, 1fr); }
+  .railcol { order: -1; padding-top: 20px; }
+  .railcol > div { position: sticky; top: 16px; }
+}
