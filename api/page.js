@@ -31,6 +31,8 @@ function head(html, { title, desc, image, url }) {
 
 export default async function handler(req, res) {
   const kind = req.query.kind === 'str' ? 'str' : 'itm';
+  // a ?v=N on a shared link makes X / WhatsApp fetch a fresh card; keep it in og:url so they don't fall back to the old one
+  const v = /^[\w-]{1,12}$/.test(String(req.query.v || '')) ? `?v=${req.query.v}` : '';
   let html = page(kind);
   const d = db();
   try {
@@ -48,9 +50,9 @@ export default async function handler(req, res) {
         desc: s.tagline || `${s.display_name}${s.verified_at ? ', a verified eBay seller,' : ''} on bMarketX. Paid in BSV straight to the seller with bWalletX.`,
         image: s.logo || 'https://bmarketx.com/brand/og.png' });
       // unclaimed: the name from the address only, nothing from the eBay store
-      else if (/^[a-z0-9._-]{2,64}$/.test(h)) html = head(html, { title: `${h} on bMarketX: claim your store`, url: `https://bmarketx.com/str/${h}`,
+      else if (/^[a-z0-9._-]{2,64}$/.test(h)) html = head(html, { title: `${h} on bMarketX: claim your store`, url: `https://bmarketx.com/str/${h}${v}`,
         desc: `bmarketx.com/str/${h} is kept for the eBay seller ${h}. Move your store in about a minute and get paid in BSV straight to your wallet.`,
-        image: 'https://bmarketx.com/brand/og.png' });
+        image: `https://bmarketx.com/api/og?claim=${encodeURIComponent(h)}${v ? '&' + v.slice(1) : ''}` });
     }
   } catch { /* the plain page still works */ }
   res.setHeader('content-type', 'text/html; charset=utf-8');

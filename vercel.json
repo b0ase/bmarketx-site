@@ -65,6 +65,9 @@
     },
     "api/square.js": {
       "includeFiles": "brand/logo.svg"
+    },
+    "api/og.js": {
+      "includeFiles": "{brand/og.svg,lib/fonts/*.ttf}"
     }
   }
 }
