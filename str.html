@@ -41,7 +41,7 @@
             ${s.ebay_sold ? `<span><b>${esc(s.ebay_sold)}</b> items sold</span>` : ''}
             ${s.ebay_followers ? `<span><b>${esc(s.ebay_followers)}</b> followers</span>` : ''}
           </div>
-          <div class="muted" style="font-size:12px;margin-top:4px">${s.ebay_name ? '✓ Verified eBay seller · feedback carried over from eBay' : 'Not yet verified · moved from an eBay listings file'}</div>
+          <div class="muted" style="font-size:12px;margin-top:4px">${s.ebay_name ? `✓ Verified eBay seller${s.ebay_feedback ? ' · feedback carried over from eBay' : ''}` : 'Not yet verified · moved from an eBay listings file'}</div>
         </div>
         <div class="act"><button class="btn ghost" type="button" data-share>Share</button><a class="btn ghost" target="_blank" rel="noopener" href="${BMX.mailTo(s.contact, `About your store ${s.display_name} on bMarketX`, `Hi ${s.display_name},\n\n\n\nhttps://bmarketx.com/str/${s.handle}`)}">Contact</a><button class="btn" type="button" data-soon2>♡ Save Seller</button></div>
       </section>

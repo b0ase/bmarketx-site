@@ -164,6 +164,7 @@
     catch (e) { me = null; if (e.status !== 401) out.dataset.err = e.message; }
     show();
   }
+  if (BMX.params.get('ebay') === 'verified') BMX.alertBar('✓ eBay account verified. Your store is marked as a verified eBay seller.');
   window.addEventListener('hashchange', show);
   document.addEventListener('bmarketx-wallet', load);
   load();

@@ -27,8 +27,13 @@
     <div id="csvOut"></div>
   </section>
   <section id="tab-link" hidden>
-  <div class="note warn" style="margin-top:16px"><b>Coming soon: Sign in with eBay.</b> Copying a store straight from its link, with your photos, feedback and the <b>verified eBay seller</b> mark, arrives with Sign in with eBay, which is waiting on eBay’s approval. eBay doesn’t let other sites read store pages automatically.<br><br>
-    Move today with the <a class="u" href="#csv" data-tab="csv">Upload CSV</a> tab. Your store address is kept for you, and you can verify it the moment Sign in with eBay is live.</div>
+  <div class="getw" style="margin-top:16px" id="ebayBox">
+    <div><b>Sign in with eBay to verify your store</b>
+      <span class="muted">eBay confirms the account is yours. Your store address becomes yours and gets the <b>✓ verified eBay seller</b> mark. We only ask eBay for your username and store name, read-only, and we don’t keep your eBay login.</span></div>
+    <div class="getw-row"><a class="btn" href="/api/ebay/start" id="ebayGo">Sign in with eBay</a></div>
+    <p class="err" id="ebayMsg"></p>
+    <span class="muted" style="font-size:12px">Then bring your listings with the <a class="u" href="#csv" data-tab="csv">Upload CSV</a> tab. bMarketX isn’t affiliated with eBay.</span>
+  </div>
   <form class="field" id="f" hidden><input id="url" placeholder="https://www.ebay.com/str/yourstore" autocomplete="off" required><button class="btn" type="submit">Find my store</button></form>
   <div id="out"></div>
   </section>
@@ -45,6 +50,8 @@ BMX.tab = (t) => {
 };
 document.querySelectorAll('[data-tab]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); BMX.tab(a.dataset.tab); }));
 if (location.hash === '#link') BMX.tab('link');
+{ const why = { signin: 'Connect bWalletX first, then sign in with eBay.', declined: 'eBay sign-in was cancelled.', expired: 'That took too long or the wallet changed. Try again.', taken: 'That eBay account is already linked to another wallet. If it’s yours, contact us.', failed: 'eBay didn’t confirm the account. Try again in a minute.', off: 'Sign in with eBay isn’t switched on yet.' }[BMX.params.get('ebay')];
+  if (why) document.getElementById('ebayMsg').textContent = why; }
 document.querySelectorAll('.note [data-tab]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); BMX.tab('csv'); }));
 (() => {
   const { esc, api, after, usd } = BMX;
