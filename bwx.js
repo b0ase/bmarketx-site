@@ -65,6 +65,8 @@
       const v = await post('/api/bwalletx/verify', { identityKey: r.identityKey, nonce: r.nonce, signature: r.signature, ticket });
       key = v.identityKey; window.bmxWallet = r.wallet || null; close(); draw();   // kept for checkout (app.js)
       document.dispatchEvent(new CustomEvent('bmarketx-wallet', { detail: { identityKey: key } }));
+      // first stop after signing in: your account page, unless this page is already a step in selling
+      if (!['sell', 'mint', 'my'].includes(document.body.dataset.page)) location.href = '/my';
     } catch (e) {
       if (e && e.code === 'NOT_FOUND') {
         show(`<h3>No bWalletX found</h3><p>Get the bWalletX extension or app, or use the web wallet.</p><p><a class="bwx-btn on" href="https://bwalletx.com/get">Get bWalletX</a></p>`);

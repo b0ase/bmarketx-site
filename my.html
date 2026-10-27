@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My bMarketX</title>
+<meta name="description" content="Your bMarketX account: your store, your listings, your wallet.">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+<meta property="og:image" content="https://bmarketx.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="my">
+<main class="wrap"><div class="sell">
+  <h1>My bMarketX</h1>
+  <div id="out"><p class="muted">Loading…</p></div>
+</div></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+(() => {
+  const { esc, api } = BMX;
+  const out = document.getElementById('out');
+  const slug = (n) => String(n).toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+  const short = (k) => k.slice(0, 8) + '…' + k.slice(-6);
+
+  async function load() {
+    try { render(await api('/api/my')); }
+    catch (e) {
+      out.innerHTML = e.status === 401
+        ? `<div class="note"><b>Sign in with your wallet.</b> Use <b>Connect bWalletX</b> at the top of the page. Your wallet is your bMarketX account: no email, no password.</div>
+           <p><a class="u" href="https://bwalletx.com/get">No wallet yet? Get bWalletX.</a></p>`
+        : `<div class="note warn"><b>Your wallet is connected</b>, but stores can't be opened just yet: ${esc(e.message)}</div>`;
+    }
+  }
+  document.addEventListener('bmarketx-wallet', load);
+
+  function render(j) {
+    const acct = `<p class="muted" style="margin:6px 0 18px">Signed in with bWalletX <code title="${esc(j.identityKey)}">${esc(short(j.identityKey))}</code></p>`;
+    if (!j.stores.length) {
+      out.innerHTML = acct + `
+        <div class="steps" style="grid-template-columns:1fr 1fr">
+          <div class="step"><span class="n" style="background:var(--red)">1</span><b>Selling on eBay already?</b>
+            <span class="muted">Bring your whole store across: listings, prices and stock. Prove it's yours and your feedback comes too.</span>
+            <p><a class="btn" href="/sell">Move from eBay</a></p></div>
+          <div class="step"><span class="n" style="background:var(--blue)">2</span><b>Starting fresh?</b>
+            <span class="muted">Open a new store. You can add listings or upload a spreadsheet afterwards.</span>
+            <p><a class="btn ghost" href="#new" id="goNew">Open a new store</a></p></div>
+        </div>
+        <div id="newForm" hidden>${form({})}</div>`;
+      document.getElementById('goNew').onclick = (e) => { e.preventDefault(); const f = document.getElementById('newForm'); f.hidden = false; wire(f, true); f.querySelector('input').focus(); };
+      return;
+    }
+    out.innerHTML = acct + j.stores.map((s, k) => {
+      const minted = s.listings.filter((l) => l.token_id).length;
+      return `<section class="step" style="margin:0 0 18px">
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          ${s.logo ? `<img src="${esc(s.logo)}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover">` : `<div style="width:64px;height:64px;border-radius:50%;background:var(--soft)"></div>`}
+          <div><b style="font-size:20px">${esc(s.display_name)}</b><div class="muted">bmarketx.com/str/${esc(s.handle)} · ${s.ebay_name ? '✓ verified eBay seller' : 'not yet verified'}</div></div>
+          <a class="btn ghost" style="margin-left:auto;min-height:36px" href="/str/${esc(s.handle)}">View store</a>
+        </div>
+        <div class="band" style="margin:16px 0;padding:16px;grid-template-columns:repeat(3,1fr)">
+          <div><b class="big" style="color:var(--blue);font-size:26px">${s.listings.length.toLocaleString()}</b><span>listings</span></div>
+          <div><b class="big" style="color:var(--green);font-size:26px">${minted.toLocaleString()}</b><span>minted to your wallet</span></div>
+          <div><b class="big" style="color:var(--red);font-size:26px">0</b><span>orders (buying opens soon)</span></div>
+        </div>
+        <p style="display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn" href="/sell">Add listings from eBay</a>
+          <a class="btn ghost" href="/mint">Mint my store</a>
+          <a class="btn ghost" href="#" data-edit="${k}">Edit details</a>
+        </p>
+        <div id="edit${k}" hidden>${form(s)}</div>
+      </section>`;
+    }).join('') + `<p><a class="u" href="#" id="another">Open another store</a></p><div id="newForm" hidden>${form({})}</div>`;
+    out.querySelectorAll('[data-edit]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); const f = document.getElementById('edit' + a.dataset.edit); f.hidden = !f.hidden; wire(f, false); }));
+    document.getElementById('another').onclick = (e) => { e.preventDefault(); const f = document.getElementById('newForm'); f.hidden = false; wire(f, true); };
+  }
+
+  function form(s) {
+    return `<form class="form2" style="grid-template-columns:1fr 1fr">
+      <label>Store name<input name="displayName" value="${esc(s.display_name || '')}" placeholder="Mabel's Teapots" maxlength="80" required></label>
+      <label>Store address<div class="pre"><span>bmarketx.com/str/</span><input name="handle" value="${esc(s.handle || '')}" ${s.handle ? 'readonly' : ''} maxlength="64" required></div></label>
+      <label style="grid-column:1/-1">About your store<input name="tagline" value="${esc(s.tagline || '')}" placeholder="What you sell, in a line" maxlength="500"></label>
+      <div style="grid-column:1/-1;display:flex;gap:10px;align-items:center"><button class="btn" type="submit">${s.handle ? 'Save' : 'Open my store'}</button><span class="err" data-err></span></div>
+    </form>`;
+  }
+  function wire(box, fresh) {
+    const f = box.querySelector('form');
+    if (fresh) { const n = f.displayName, h = f.handle; n.oninput = () => { if (!h.dataset.touched) h.value = slug(n.value); }; h.oninput = () => (h.dataset.touched = 1); }
+    f.onsubmit = async (e) => {
+      e.preventDefault();
+      const btn = f.querySelector('button'); btn.disabled = true;
+      try {
+        await api('/api/store-save', { method: 'POST', body: JSON.stringify({ handle: f.handle.value, displayName: f.displayName.value, tagline: f.tagline.value }) });
+        load();
+      } catch (er) { f.querySelector('[data-err]').textContent = er.message; btn.disabled = false; }
+    };
+  }
+  load();
+})();
+</script>
+</body>
+</html>

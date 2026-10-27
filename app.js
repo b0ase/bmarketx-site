@@ -11,7 +11,7 @@
     <a class="hide-s" href="/search?q=">Deals</a>
     <a class="hide-s" href="/sell">Move from eBay</a>
     <a class="hide-s" href="https://bwalletx.com" target="_blank" rel="noopener">Help &amp; Contact</a>
-    <div class="r"><a href="/sell">Sell</a><a class="hide-s" href="#" data-soon>Watchlist</a><a href="/mint">My bMarketX</a><a href="#" data-soon aria-label="Cart">🛒</a></div>
+    <div class="r"><a href="/sell">Sell</a><a class="hide-s" href="#" data-soon>Watchlist</a><a href="/my">My bMarketX</a><a href="#" data-soon aria-label="Cart">🛒</a></div>
   </div></div>
   <div class="head"><div class="wrap">
     ${logo()}
