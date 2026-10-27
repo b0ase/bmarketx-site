@@ -157,3 +157,44 @@ h2.sec { font-size: 22px; margin: 26px 0 12px; }
   .hero-copy { padding: 140px 22px 28px; } .hero h1 { font-size: 34px; }
   .catrow { grid-template-columns: repeat(3, minmax(0, 1fr)); } .band { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* header dropdowns (eBay-style hover menus) */
+.dd { position: relative; }
+.dd .menu { display: none; position: absolute; right: 0; top: 100%; z-index: 40; min-width: 240px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 28px rgba(0,0,0,.12); padding: 14px; font-size: 13px; }
+.dd:hover .menu, .dd:focus-within .menu { display: grid; gap: 8px; }
+.dd .menu.links a { padding: 3px 0; }
+.dd .sellmenu { width: 300px; }
+.dd .sellmenu ul { margin: 4px 0; padding-left: 18px; }
+.dd .sellmenu .btn { min-height: 34px; padding: 0 14px; font-size: 13px; }
+.dd .mini { display: grid; grid-template-columns: 40px 1fr; gap: 8px; align-items: center; }
+.dd .mini img, .dd .mini > span:first-child { width: 40px; height: 40px; object-fit: contain; background: var(--soft); border-radius: 6px; }
+.card .heart.on { color: var(--red); }
+
+/* My bMarketX: side menu + panel */
+.myb { display: grid; grid-template-columns: 220px 1fr; gap: 28px; padding: 24px 0 50px; }
+.myb nav { display: grid; align-content: start; gap: 2px; }
+.myb nav a { padding: 9px 12px; border-radius: 8px; text-decoration: none; }
+.myb nav a.on { background: var(--soft); font-weight: 700; border-left: 3px solid var(--blue); }
+.myb h2 { margin: 0 0 6px; font-size: 24px; }
+@media (max-width: 760px) { .myb { grid-template-columns: 1fr; } .myb nav { grid-auto-flow: column; overflow-x: auto; } .myb nav a { white-space: nowrap; } }
+
+/* deals */
+.spot { display: grid; grid-template-columns: minmax(0, 360px) 1fr; gap: 24px; align-items: center; border-radius: 16px; background: #FFF6DC; padding: 24px; margin: 18px 0; }
+.spot .img { background: #fff; border-radius: 12px; aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; }
+.spot .img img { max-height: 100%; width: auto; }
+.off { display: inline-block; background: var(--red); color: #fff; font-weight: 800; border-radius: 6px; padding: 2px 8px; font-size: 13px; }
+@media (max-width: 760px) { .spot { grid-template-columns: 1fr; } }
+
+/* feedback tab + pop-up */
+.fbtab { position: fixed; right: 0; top: 50%; transform: rotate(-90deg) translate(50%, -100%); transform-origin: right top; z-index: 30; background: var(--ink); color: #fff; border: 0; border-radius: 8px 8px 0 0; padding: 8px 14px; font: 600 12px Inter, sans-serif; cursor: pointer; }
+.bwx-modal { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.5); display: grid; place-items: center; padding: 16px; }
+.fbform { background: #fff; color: var(--ink); border-radius: 16px; padding: 22px; width: 100%; max-width: 440px; display: grid; gap: 10px; }
+.fbform label { display: grid; gap: 4px; font-weight: 600; font-size: 13px; }
+.fbform textarea, .fbform input:not([type]) { border: 1px solid #8F8F8F; border-radius: 8px; padding: 10px; font: inherit; font-weight: 400; }
+.fbscale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.fbscale label { display: block; } .fbscale input { position: absolute; opacity: 0; }
+.fbscale span { display: grid; place-items: center; height: 40px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-weight: 700; }
+.fbscale input:checked + span { background: var(--blue); color: #fff; border-color: var(--blue); }
+.fbscale input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.fbends { display: flex; justify-content: space-between; font-size: 12px; }
+.fbwallet { grid-template-columns: auto 1fr !important; align-items: center; font-weight: 400 !important; }

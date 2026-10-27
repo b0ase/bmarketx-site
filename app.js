@@ -8,10 +8,21 @@
   document.body.insertAdjacentHTML('afterbegin', `
   <div class="top"><div class="wrap">
     <span>Hi! <span data-bwx></span></span>
-    <a class="hide-s" href="/search?q=">Deals</a>
-    <a class="hide-s" href="/sell">Move from eBay</a>
-    <a class="hide-s" href="https://bwalletx.com" target="_blank" rel="noopener">Help &amp; Contact</a>
-    <div class="r"><a href="/sell">Sell</a><a class="hide-s" href="#" data-soon>Watchlist</a><a href="/my">My bMarketX</a><a href="#" data-soon aria-label="Cart">🛒</a></div>
+    <a class="hide-s" href="/deals">Deals</a>
+    <a class="hide-s" href="/c/fashion">Fashion</a>
+    <a class="hide-s" href="/help">Help &amp; Contact</a>
+    <div class="r">
+      <div class="dd"><a href="/sell">Sell</a><div class="menu sellmenu">
+        <b>Sell on bMarketX.com</b><span class="muted">Bring the shop you already have, or start a new one.</span>
+        <ul><li>Move your eBay store in about a minute</li><li>Paid in BSV, straight to your wallet</li><li>Your listings minted to you, not us</li></ul>
+        <p><a class="btn" href="/sell">Move from eBay</a> <a class="btn ghost" href="/list">List an item</a></p>
+      </div></div>
+      <div class="dd hide-s"><a href="/my#watch">Watchlist</a><div class="menu" data-watchmenu></div></div>
+      <div class="dd"><a href="/my">My bMarketX</a><div class="menu links">
+        <a href="/my#summary">Summary</a><a href="/my#recent">Recently viewed</a><a href="/my#bids">Bids &amp; offers</a><a href="/my#watch">Watchlist</a><a href="/my#purchases">Purchase history</a><a href="/my#selling">Selling</a><a href="/my#searches">Saved searches</a><a href="/my#sellers">Saved sellers</a><a href="/my#messages">Messages</a>
+      </div></div>
+      <a href="#" data-soon aria-label="Basket">🛒</a>
+    </div>
   </div></div>
   <div class="head"><div class="wrap">
     ${logo()}
@@ -27,6 +38,37 @@
     <span>Paid in BSV with <a class="u" href="https://bwalletx.com">bWalletX</a> · a b*X app from The Bitcoin Corporation</span>
     <a href="/sell">Move your eBay store</a><a href="https://bwalletx.com/privacy">Privacy</a><a href="https://bwalletx.com/terms">Terms</a>
   </div></div>`);
+  const wm = document.querySelector('[data-watchmenu]');
+  if (wm) wm.parentElement.addEventListener('mouseenter', () => {
+    const w = watch.get().slice(0, 4);
+    wm.innerHTML = w.length ? w.map((i) => `<a class="mini" href="/itm/${i.id}">${i.images[0] ? `<img src="${esc(img(i.images[0], 140).src)}" alt="">` : '<span></span>'}<span>${esc(i.title)}</span></a>`).join('') + '<a href="/my#watch"><b>See all in Watchlist</b></a>'
+      : '<span class="muted">Tap ♡ on any listing to watch it.</span>';
+  });
+  // "Give feedback" tab and pop-up, on every page
+  document.body.insertAdjacentHTML('beforeend', '<button class="fbtab" type="button">Give feedback</button>');
+  document.querySelector('.fbtab').onclick = () => {
+    const m = document.createElement('div'); m.className = 'bwx-modal';
+    m.innerHTML = `<form class="fbform"><h3 style="margin:0 0 4px">Tell us what you think</h3>
+      <p class="muted" style="margin:0 0 12px">How useful was this page?</p>
+      <div class="fbscale">${[1, 2, 3, 4, 5].map((n) => `<label><input type="radio" name="rating" value="${n}" required><span>${n}</span></label>`).join('')}</div>
+      <div class="fbends muted"><span>Not at all useful</span><span>Very useful</span></div>
+      <label>How could we make it better? <span class="muted" data-n>0/500</span><textarea name="comment" maxlength="500" rows="4"></textarea></label>
+      <label>Email, if we may contact you (optional)<input name="contact" maxlength="100"></label>
+      <label class="fbwallet"><input type="checkbox" name="withWallet"> Include my bWalletX key (if signed in)</label>
+      <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn ghost" type="button" data-x>Cancel</button><button class="btn">Send</button></div>
+      <p class="err" data-e></p></form>`;
+    document.body.appendChild(m);
+    const f = m.querySelector('form'), close = () => m.remove();
+    m.onclick = (e) => { if (e.target === m) close(); }; f.querySelector('[data-x]').onclick = close;
+    f.comment.oninput = () => (f.querySelector('[data-n]').textContent = `${f.comment.value.length}/500`);
+    f.onsubmit = async (e) => {
+      e.preventDefault();
+      try {
+        await api('/api/feedback', { method: 'POST', body: JSON.stringify({ page: location.pathname, rating: f.rating.value, comment: f.comment.value, contact: f.contact.value, withWallet: f.withWallet.checked }) });
+        f.innerHTML = '<h3>Thank you.</h3><p class="muted">We read every one.</p>'; setTimeout(close, 1600);
+      } catch (er) { f.querySelector('[data-e]').textContent = er.message; }
+    };
+  };
   document.querySelectorAll('[data-soon]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); alertBar('Coming soon: this part of bMarketX is being built.'); }));
 
   function alertBar(msg) {
@@ -49,8 +91,27 @@
   };
   const picture = (u, px, attrs = '') => { const p = img(u, px);
     return `<picture>${p.webp ? `<source srcset="${esc(p.webp)}" type="image/webp">` : ''}<img src="${esc(p.src)}" decoding="async" ${attrs}></picture>`; };
+  // Watchlist and recently viewed live in this browser (per-viewer conveniences, not account data)
+  const store = (k) => ({ get: () => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch { return []; } },
+    set: (v) => { try { localStorage.setItem(k, JSON.stringify(v.slice(0, 100))); } catch {} } });
+  const watch = store('bmx-watch'), recent = store('bmx-recent');
+  const brief = (i) => ({ id: i.id, title: i.title, price_cents: i.price_cents, was_cents: i.was_cents || null, images: (i.images || []).slice(0, 1) });
+  const watching = (id) => watch.get().some((x) => x.id === id);
+  function toggleWatch(i) {
+    const w = watch.get(), on = w.some((x) => x.id === i.id);
+    watch.set(on ? w.filter((x) => x.id !== i.id) : [brief(i), ...w]);
+    alertBar(on ? 'Removed from your Watchlist.' : 'Added to your Watchlist.');
+    return !on;
+  }
+  const seen = (i) => recent.set([brief(i), ...recent.get().filter((x) => x.id !== i.id)]);
+  const shown = new Map();
+  document.addEventListener('click', (e) => {
+    const h = e.target.closest('.heart[data-id]'); if (!h) return;
+    e.preventDefault(); const i = shown.get(+h.dataset.id); if (!i) return;
+    const on = toggleWatch(i); h.textContent = on ? '♥' : '♡'; h.classList.toggle('on', on);
+  });
   const card = (i, k = 0) => `<a class="card" href="/itm/${i.id}">
-    <div class="img">${i.images?.[0] ? picture(i.images[0], 500, `alt="" ${k < 8 ? 'fetchpriority="high"' : 'loading="lazy"'}`) : ''}<button class="heart" type="button" aria-label="Watch" onclick="event.preventDefault()">♡</button></div>
+    <div class="img">${i.images?.[0] ? picture(i.images[0], 500, `alt="" ${k < 8 ? 'fetchpriority="high"' : 'loading="lazy"'}`) : ''}${(shown.set(i.id, i), '')}<button class="heart${watching(i.id) ? ' on' : ''}" type="button" aria-label="Watch" data-id="${i.id}">${watching(i.id) ? '♥' : '♡'}</button></div>
     <div class="t">${esc(i.title)}</div>
     <div><span class="price">${usd(i.price_cents)}</span>${i.was_cents ? `<span class="was">${usd(i.was_cents)}</span>` : ''}</div>
     <div class="bsv" data-bsv="${i.price_cents}"></div>
@@ -66,5 +127,5 @@
   const pager = (page, pages, href) => pages <= 1 ? '' : `<nav class="pager">${Array.from({ length: Math.min(pages, 10) }, (_, k) => k + 1)
     .map((n) => `<a class="${n === page ? 'on' : ''}" href="${href(n)}">${n}</a>`).join('')}</nav>`;
 
-  window.BMX = { esc, usd, card, picture, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
+  window.BMX = { esc, usd, card, picture, watch, recent, seen, toggleWatch, watching, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
 })();

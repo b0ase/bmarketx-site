@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   const d = db();
   if (!d) return res.status(503).json({ error: 'The market database is not switched on yet.' });
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1), per = 48;
-  let f = `bmx_listings?status=eq.active&select=id,title,price_cents,was_cents,promo,condition,images,store_handle`;
+  let f = `bmx_listings?status=eq.active&select=id,title,price_cents,was_cents,promo,condition,category,images,store_handle`;
   if (req.query.q) f += `&title=ilike.${q('*' + String(req.query.q).replace(/[*,()]/g, ' ') + '*')}`;
   f += `&order=created_at.desc&limit=${per}&offset=${(page - 1) * per}`;
   try {

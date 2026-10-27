@@ -2,7 +2,8 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/str/:handle", "destination": "/str" },
-    { "source": "/itm/:id", "destination": "/itm" }
+    { "source": "/itm/:id", "destination": "/itm" },
+    { "source": "/c/:cat", "destination": "/c" }
   ],
   "redirects": [
     { "source": "/:path*", "has": [{ "type": "host", "value": "www.bmarketx.com" }], "destination": "https://bmarketx.com/:path*", "permanent": true }

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List an item · bMarketX</title>
+<meta name="description" content="List an item on bMarketX.com in three steps.">
+<meta property="og:title" content="Search · bMarketX">
+<meta property="og:description" content="Search every bMarketX store.">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+<meta property="og:image" content="https://bmarketx.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="list">
+<main class="wrap"><div class="sell">
+  <h1>Start your listing</h1>
+  <p class="muted">Tell us what you’re selling.</p>
+  <form class="field" id="f1"><input id="what" placeholder="e.g. Japanese Gastly Neo Destiny holo, or Brown Betty teapot 6 cup" maxlength="80" required autocomplete="off"><button class="btn">Next</button></form>
+  <div class="steps" id="howto">
+    <div class="step"><span class="n" style="background:var(--red)">1</span><b>Share item details</b><span class="muted">Use words a buyer would search for: brand, model, set, year.</span></div>
+    <div class="step"><span class="n" style="background:var(--blue)">2</span><b>Find a match</b><span class="muted">We look for similar listings on bMarketX.com so you can copy the details.</span></div>
+    <div class="step"><span class="n" style="background:var(--green)">3</span><b>Edit and list</b><span class="muted">Set your price and stock, check it over, and list it in your store.</span></div>
+  </div>
+  <div id="step2"></div>
+  <div id="step3"></div>
+</div></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+(() => {
+  const { esc, api, usd } = BMX;
+  const CONDS = ['New', 'New other', 'Used', 'Near mint or better', 'Lightly played', 'Moderately played', 'Heavily played', 'Graded', 'For parts or not working'];
+  let base = {};
+  f1.onsubmit = async (e) => {
+    e.preventDefault(); howto.hidden = true; step3.innerHTML = '';
+    step2.innerHTML = '<p class="muted">Looking for similar listings…</p>';
+    let items = [];
+    try { items = (await api('/api/search?q=' + encodeURIComponent(what.value.split(/\s+/).slice(0, 3).join(' ')))).items.slice(0, 6); } catch {}
+    step2.innerHTML = `<h2 class="sec">Find a match</h2>
+      ${items.length ? `<p class="muted">Pick one to copy its details, or carry on without.</p><div class="grid">${items.map((i) => `<a class="card" href="#" data-pick="${i.id}"><div class="img">${i.images?.[0] ? BMX.picture(i.images[0], 500, 'alt="" loading="lazy"') : ''}</div><div class="t">${esc(i.title)}</div><div class="muted">${esc(i.condition || '')} · ${usd(i.price_cents)}</div></a>`).join('')}</div>` : '<p class="muted">Nothing similar yet. You’ll be the first.</p>'}
+      <p><button class="btn ghost" id="skip">Continue without a match</button></p>`;
+    step2.querySelectorAll('[data-pick]').forEach((a) => (a.onclick = (ev) => { ev.preventDefault(); const i = items.find((x) => x.id === +a.dataset.pick); base = { condition: i.condition, category: i.category, price: i.price_cents }; edit(); }));
+    skip.onclick = () => { base = {}; edit(); };
+  };
+  async function edit() {
+    step2.hidden = true;
+    let my = null;
+    try { my = await api('/api/my'); } catch (e) {
+      step3.innerHTML = e.status === 401 ? `<div class="note"><b>Connect bWalletX to list.</b> Use the button at the top of the page; your wallet is your account.</div>` : `<p class="err">${esc(e.message)}</p>`;
+      document.addEventListener('bmarketx-wallet', edit, { once: true }); return;
+    }
+    if (!my.stores.length) { step3.innerHTML = `<div class="note">You need a store first. <a class="u" href="/my#selling">Open one</a> or <a class="u" href="/sell">move from eBay</a>, then come back.</div>`; return; }
+    step3.innerHTML = `<h2 class="sec">Edit and list</h2>
+      <form class="form2" id="f3">
+        <label style="grid-column:1/-1">Title<input name="title" value="${esc(what.value)}" maxlength="80" required></label>
+        <label>Price (US$)<input name="price" inputmode="decimal" value="${base.price ? (base.price / 100).toFixed(2) : ''}" placeholder="9.99" required></label>
+        <label>Was price (optional, shows as a deal)<input name="was" inputmode="decimal" placeholder="12.99"></label>
+        <label>Quantity<input name="quantity" type="number" min="1" value="1"></label>
+        <label>Condition<select name="condition" style="border:1px solid #8F8F8F;border-radius:8px;min-height:44px;padding:0 10px">${CONDS.map((c) => `<option ${c === base.condition ? 'selected' : ''}>${c}</option>`).join('')}</select></label>
+        <label>Category<input name="category" value="${esc(base.category || '')}" placeholder="Trading Cards"></label>
+        <label>Store<select name="store" style="border:1px solid #8F8F8F;border-radius:8px;min-height:44px;padding:0 10px">${my.stores.map((s) => `<option value="${esc(s.handle)}">${esc(s.display_name)}</option>`).join('')}</select></label>
+        <label style="grid-column:1/-1">Photo links (https, one per line)<textarea name="images" rows="3" style="border:1px solid #8F8F8F;border-radius:8px;padding:10px;font:inherit" placeholder="https://…/photo.jpg"></textarea></label>
+        <label style="grid-column:1/-1">Description<textarea name="description" rows="5" style="border:1px solid #8F8F8F;border-radius:8px;padding:10px;font:inherit" maxlength="8000"></textarea></label>
+        <div style="grid-column:1/-1;display:flex;gap:10px;align-items:center"><button class="btn">List it</button><span class="err" id="e3"></span></div>
+      </form>`;
+    f3.onsubmit = async (ev) => {
+      ev.preventDefault(); const b = f3.querySelector('button'); b.disabled = true;
+      const cents = (v) => Math.round(parseFloat(String(v).replace(/[^\d.]/g, '')) * 100) || null;
+      try {
+        const r = await api('/api/listing-save', { method: 'POST', body: JSON.stringify({
+          store: f3.store.value, title: f3.title.value, priceCents: cents(f3.price.value), wasCents: cents(f3.was.value), quantity: f3.quantity.value,
+          condition: f3.condition.value, category: f3.category.value, description: f3.description.value,
+          images: f3.images.value.split(/\s+/).filter((u) => /^https:\/\//.test(u)),
+        }) });
+        location.href = '/itm/' + r.id;
+      } catch (er) { e3.textContent = er.message; b.disabled = false; }
+    };
+  }
+})();
+</script>
+</body>
+</html>

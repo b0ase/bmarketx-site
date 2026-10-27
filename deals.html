@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deals · bMarketX</title>
+<meta name="description" content="Marked-down listings from bMarketX stores, paid in BSV.">
+<meta property="og:title" content="Deals · bMarketX">
+<meta property="og:description" content="Marked-down listings from bMarketX stores, paid in BSV.">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+<meta property="og:image" content="https://bmarketx.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="deals">
+<main class="wrap">
+  <h1 style="margin:22px 0 4px">Deals</h1>
+  <p class="muted">Listings sellers have marked down, biggest savings first.</p>
+  <div id="spot"></div>
+  <h2 class="sec">Trending deals</h2>
+  <div class="grid" id="trend"><div class="empty">Loading…</div></div>
+  <div id="bycat"></div>
+</main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+(async () => {
+  const { esc, api, usd, after, card } = BMX;
+  try {
+    const { items } = await api('/api/deals');
+    if (!items.length) { trend.innerHTML = '<div class="empty">No deals right now. Sellers: add a "was" price to a listing and it shows here.</div>'; return; }
+    const s = items[0];
+    spot.innerHTML = `<section class="spot"><a class="img" href="/itm/${s.id}">${s.images[0] ? BMX.picture(s.images[0], 500, 'alt=""') : ''}</a>
+      <div><span class="off">${s.pct}% off</span><h2 style="font-size:26px;margin:10px 0">${esc(s.title)}</h2>
+      <div><span class="price" style="font-size:28px">${usd(s.price_cents)}</span><span class="was">${usd(s.was_cents)}</span></div>
+      <div class="bsv" data-bsv="${s.price_cents}"></div><p><a class="btn" href="/itm/${s.id}">See the deal</a></p></div></section>`;
+    spot.querySelectorAll('[data-bsv]').forEach(BMX.fillBsv);
+    after(items.slice(1, 25).map((x, k) => card(x, k)).join(''), trend);
+    const cats = {}; items.forEach((i) => { const c = i.category || 'More deals'; (cats[c] ||= []).push(i); });
+    bycat.innerHTML = Object.entries(cats).filter(([, l]) => l.length >= 4).slice(0, 6)
+      .map(([c, l]) => `<h2 class="sec">${esc(c)}</h2><div class="grid">${l.slice(0, 8).map((x) => card(x, 99)).join('')}</div>`).join('');
+    bycat.querySelectorAll('[data-bsv]').forEach(BMX.fillBsv);
+  } catch (e) { trend.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+})();
+</script>
+</body>
+</html>

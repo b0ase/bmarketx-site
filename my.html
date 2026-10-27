@@ -14,9 +14,13 @@
 <link rel="stylesheet" href="/style.css">
 </head>
 <body data-page="my">
-<main class="wrap"><div class="sell">
-  <h1>My bMarketX</h1>
-  <div id="out"><p class="muted">Loading…</p></div>
+<main class="wrap"><div class="myb">
+  <nav id="mynav">
+    <a href="#summary">Summary</a><a href="#recent">Recently viewed</a><a href="#bids">Bids &amp; offers</a><a href="#watch">Watchlist</a>
+    <a href="#purchases">Purchase history</a><a href="#selling">Selling</a><a href="#searches">Saved searches</a><a href="#sellers">Saved sellers</a>
+    <a href="#messages">Messages</a><a href="#prefs">Preferences</a><a href="#issues">Resolution centre</a>
+  </nav>
+  <section id="out"><p class="muted">Loading…</p></section>
 </div></main>
 <script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -28,35 +32,41 @@
   const out = document.getElementById('out');
   const slug = (n) => String(n).toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
   const short = (k) => k.slice(0, 8) + '…' + k.slice(-6);
+  let me = null;   // { identityKey, stores } once signed in
+  const soon = (title, text) => `<h2>${title}</h2><div class="note" style="margin-top:12px">${text}</div>`;
+  const grid = (items, none) => items.length ? `<div class="grid" style="margin-top:16px">${items.map((x, k) => BMX.card(x, k)).join('')}</div>` : `<div class="empty">${none}</div>`;
 
-  async function load() {
-    try { render(await api('/api/my')); }
-    catch (e) {
-      out.innerHTML = e.status === 401
-        ? `<div class="note"><b>Sign in with your wallet.</b> Use <b>Connect bWalletX</b> at the top of the page. Your wallet is your bMarketX account: no email, no password.</div>
-           <p><a class="u" href="https://bwalletx.com/get">No wallet yet? Get bWalletX.</a></p>`
-        : `<div class="note warn"><b>Your wallet is connected</b>, but stores can't be opened just yet: ${esc(e.message)}</div>`;
-    }
+  const views = {
+    summary: () => {
+      const r = BMX.recent.get().slice(0, 4), w = BMX.watch.get().slice(0, 4);
+      return `<h2>Summary</h2>${acct()}
+        ${me && me.stores.length ? `<p><b>Selling:</b> ${me.stores.map((s) => `<a class="u" href="/str/${esc(s.handle)}">${esc(s.display_name)}</a> (${s.listings.length} listings)`).join(', ')} · <a class="u" href="#selling">Manage</a></p>` : me ? `<p><a class="btn" href="#selling">Start selling</a></p>` : ''}
+        <h2 class="sec" style="font-size:18px">Recently viewed <a class="u muted" style="font-size:13px" href="#recent">See all</a></h2>${grid(r, 'Nothing viewed yet. <a class="u" href="/search">Browse listings</a>.')}
+        <h2 class="sec" style="font-size:18px">Watchlist <a class="u muted" style="font-size:13px" href="#watch">See all</a></h2>${grid(w, 'Tap ♡ on any listing to watch it.')}`;
+    },
+    recent: () => `<h2>Recently viewed</h2><p class="muted">Kept in this browser only. <a class="u" href="#" data-clear="recent">Clear</a></p>${grid(BMX.recent.get(), 'Nothing viewed yet.')}`,
+    watch: () => `<h2>Watchlist</h2><p class="muted">Kept in this browser only. Tap ♥ to remove.</p>${grid(BMX.watch.get(), 'Tap ♡ on any listing to watch it.')}`,
+    bids: () => soon('Bids &amp; offers', 'Making offers arrives with buying. bMarketX starts with Buy It Now; best offers come after.'),
+    purchases: () => soon('Purchase history', '<b>Buying opens soon.</b> Everything you buy with bWalletX will show here with its on-chain receipt, so you can always prove what you paid and when.'),
+    searches: () => soon('Saved searches', 'Coming soon: save a search and hear when something new is listed.'),
+    sellers: () => soon('Saved sellers', 'Coming soon: follow your favourite stores.'),
+    messages: () => soon('Messages', 'Coming soon: talk to buyers and sellers in bChatX, wallet to wallet.'),
+    issues: () => soon('Resolution centre', 'Arrives with buying: report an item that didn’t turn up or wasn’t as described.'),
+    prefs: () => `<h2>Preferences</h2>${acct()}<p class="muted">Your bWalletX is your account. There’s no email or password to manage here.</p><p><button class="btn ghost" id="signout">Sign out on this browser</button></p>`,
+    selling: () => !me ? signIn() : me.stores.length ? stores() : start(),
+  };
+
+  function acct() { return me ? `<p class="muted" style="margin:6px 0 18px">Signed in with bWalletX <code title="${esc(me.identityKey)}">${esc(short(me.identityKey))}</code></p>` : signIn(); }
+  function signIn() { return `<div class="note" style="margin:12px 0"><b>Sign in with your wallet.</b> Use <b>Connect bWalletX</b> at the top of the page. Your wallet is your bMarketX account: no email, no password. <a class="u" href="https://bwalletx.com/get">Get bWalletX</a></div>`; }
+  function start() {
+    return `<h2>Selling</h2>${acct()}
+      <div class="steps" style="grid-template-columns:1fr 1fr">
+        <div class="step"><span class="n" style="background:var(--red)">1</span><b>Selling on eBay already?</b><span class="muted">Bring your whole store across: listings, prices and stock. Prove it’s yours and your feedback comes too.</span><p><a class="btn" href="/sell">Move from eBay</a></p></div>
+        <div class="step"><span class="n" style="background:var(--blue)">2</span><b>Starting fresh?</b><span class="muted">Open a new store. Add listings or upload a spreadsheet afterwards.</span><p><a class="btn ghost" href="#" data-new>Open a new store</a></p></div>
+      </div><div data-newform hidden>${form({})}</div>`;
   }
-  document.addEventListener('bmarketx-wallet', load);
-
-  function render(j) {
-    const acct = `<p class="muted" style="margin:6px 0 18px">Signed in with bWalletX <code title="${esc(j.identityKey)}">${esc(short(j.identityKey))}</code></p>`;
-    if (!j.stores.length) {
-      out.innerHTML = acct + `
-        <div class="steps" style="grid-template-columns:1fr 1fr">
-          <div class="step"><span class="n" style="background:var(--red)">1</span><b>Selling on eBay already?</b>
-            <span class="muted">Bring your whole store across: listings, prices and stock. Prove it's yours and your feedback comes too.</span>
-            <p><a class="btn" href="/sell">Move from eBay</a></p></div>
-          <div class="step"><span class="n" style="background:var(--blue)">2</span><b>Starting fresh?</b>
-            <span class="muted">Open a new store. You can add listings or upload a spreadsheet afterwards.</span>
-            <p><a class="btn ghost" href="#new" id="goNew">Open a new store</a></p></div>
-        </div>
-        <div id="newForm" hidden>${form({})}</div>`;
-      document.getElementById('goNew').onclick = (e) => { e.preventDefault(); const f = document.getElementById('newForm'); f.hidden = false; wire(f, true); f.querySelector('input').focus(); };
-      return;
-    }
-    out.innerHTML = acct + j.stores.map((s, k) => {
+  function stores() {
+    return `<h2>Selling</h2>${acct()}` + me.stores.map((s, k) => {
       const minted = s.listings.filter((l) => l.token_id).length;
       return `<section class="step" style="margin:0 0 18px">
         <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
@@ -69,18 +79,11 @@
           <div><b class="big" style="color:var(--green);font-size:26px">${minted.toLocaleString()}</b><span>minted to your wallet</span></div>
           <div><b class="big" style="color:var(--red);font-size:26px">0</b><span>orders (buying opens soon)</span></div>
         </div>
-        <p style="display:flex;gap:10px;flex-wrap:wrap">
-          <a class="btn" href="/sell">Add listings from eBay</a>
-          <a class="btn ghost" href="/mint">Mint my store</a>
-          <a class="btn ghost" href="#" data-edit="${k}">Edit details</a>
-        </p>
-        <div id="edit${k}" hidden>${form(s)}</div>
+        <p style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="/sell">Add listings from eBay</a><a class="btn ghost" href="/mint">Mint my store</a><a class="btn ghost" href="#" data-edit="${k}">Edit details</a></p>
+        <div data-editform="${k}" hidden>${form(s)}</div>
       </section>`;
-    }).join('') + `<p><a class="u" href="#" id="another">Open another store</a></p><div id="newForm" hidden>${form({})}</div>`;
-    out.querySelectorAll('[data-edit]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); const f = document.getElementById('edit' + a.dataset.edit); f.hidden = !f.hidden; wire(f, false); }));
-    document.getElementById('another').onclick = (e) => { e.preventDefault(); const f = document.getElementById('newForm'); f.hidden = false; wire(f, true); };
+    }).join('') + `<p><a class="u" href="#" data-new>Open another store</a></p><div data-newform hidden>${form({})}</div>`;
   }
-
   function form(s) {
     return `<form class="form2" style="grid-template-columns:1fr 1fr">
       <label>Store name<input name="displayName" value="${esc(s.display_name || '')}" placeholder="Mabel's Teapots" maxlength="80" required></label>
@@ -93,16 +96,33 @@
     const f = box.querySelector('form');
     if (fresh) { const n = f.displayName, h = f.handle; n.oninput = () => { if (!h.dataset.touched) h.value = slug(n.value); }; h.oninput = () => (h.dataset.touched = 1); }
     f.onsubmit = async (e) => {
-      e.preventDefault();
-      const btn = f.querySelector('button'); btn.disabled = true;
-      try {
-        await api('/api/store-save', { method: 'POST', body: JSON.stringify({ handle: f.handle.value, displayName: f.displayName.value, tagline: f.tagline.value }) });
-        load();
-      } catch (er) { f.querySelector('[data-err]').textContent = er.message; btn.disabled = false; }
+      e.preventDefault(); const btn = f.querySelector('button'); btn.disabled = true;
+      try { await api('/api/store-save', { method: 'POST', body: JSON.stringify({ handle: f.handle.value, displayName: f.displayName.value, tagline: f.tagline.value }) }); await load(); }
+      catch (er) { f.querySelector('[data-err]').textContent = er.message; btn.disabled = false; }
     };
   }
+
+  function show() {
+    const v = (location.hash || '#summary').slice(1);
+    const view = views[v] ? v : 'summary';
+    document.querySelectorAll('#mynav a').forEach((a) => a.classList.toggle('on', a.hash === '#' + view));
+    BMX.after(views[view](), out);
+    out.querySelectorAll('[data-new]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); const f = out.querySelector('[data-newform]'); f.hidden = false; wire(f, true); f.querySelector('input').focus(); }));
+    out.querySelectorAll('[data-edit]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); const f = out.querySelector(`[data-editform="${a.dataset.edit}"]`); f.hidden = !f.hidden; wire(f, false); }));
+    out.querySelector('[data-clear]')?.addEventListener('click', (e) => { e.preventDefault(); BMX.recent.set([]); show(); });
+    out.querySelector('#signout')?.addEventListener('click', async () => { await fetch('/api/bwalletx/session', { method: 'POST' }); location.href = '/'; });
+    if (view === 'watch') out.addEventListener('click', () => setTimeout(show, 50), { once: true });
+  }
+  async function load() {
+    try { me = await api('/api/my'); }
+    catch (e) { me = null; if (e.status !== 401) out.dataset.err = e.message; }
+    show();
+  }
+  window.addEventListener('hashchange', show);
+  document.addEventListener('bmarketx-wallet', load);
   load();
 })();
 </script>
+
 </body>
 </html>

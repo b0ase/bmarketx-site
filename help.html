@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Help &amp; Contact · bMarketX</title>
+<meta name="description" content="Help with buying, selling and moving your store to bMarketX.com.">
+<meta property="og:title" content="Help &amp; Contact · bMarketX">
+<meta property="og:description" content="Help with buying, selling and moving your store to bMarketX.com.">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+<meta property="og:image" content="https://bmarketx.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="help">
+<main class="wrap"><div class="sell" style="max-width:900px">
+  <h1>How can we help?</h1>
+  <form class="field" action="/help" onsubmit="event.preventDefault();BMX.helpFind(this.q.value)"><input name="q" placeholder="Search help, e.g. move my eBay store"><button class="btn">Search</button></form>
+  <h2 class="sec">Top picks</h2>
+  <div class="steps" id="topics"></div>
+  <h2 class="sec">Need more help?</h2>
+  <div class="steps" style="grid-template-columns:1fr 1fr">
+    <div class="step"><b>Ask in the bMarketX room</b><span class="muted">Sellers and the team meet in bChatX. Your wallet is your login there too.</span><p><a class="btn ghost" href="https://bchatx.com" target="_blank" rel="noopener">Open bChatX</a></p></div>
+    <div class="step"><b>Wallet help</b><span class="muted">Getting bWalletX, backing it up, buying BSV.</span><p><a class="btn ghost" href="https://bwalletx.com" target="_blank" rel="noopener">bWalletX help</a></p></div>
+  </div>
+</div></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+const T = [
+  ['Moving from eBay', 'How do I move my eBay store?', 'Go to <a class="u" href="/sell">Move from eBay</a>. Upload the "All active listings" file from Seller Hub › Reports, or paste your store link. Titles, prices, stock and conditions come across in about a minute.'],
+  ['Moving from eBay', 'How do I keep my feedback?', 'On the Store link tab, add the short code we give you to your eBay store description. Once we see it, your store gets the verified mark and your feedback, items sold and followers come with you. You can delete the code afterwards.'],
+  ['Selling', 'How do I list an item?', '<a class="u" href="/list">List an item</a>: describe it, pick a similar listing to copy details from if you like, then set your price and stock.'],
+  ['Selling', 'What is minting my store?', 'Each listing becomes a token in your own bWalletX, with its photo on chain. You own it, not us. It costs about $0.001 a listing in network fees. See <a class="u" href="/mint">Mint my store</a>.'],
+  ['Account', 'Where is my password?', 'There isn\'t one. Your bWalletX is your account: connect it and you are signed in. Keep your wallet backed up; that is your account backup too.'],
+  ['Buying', 'How do I pay?', 'Prices are in US dollars and paid in BSV from your bWalletX at the live rate. <b>Buying opens soon.</b>'],
+  ['Buying', 'Returns and items that don\'t arrive', 'The resolution centre arrives with buying. Until then nothing can be bought, so nothing can go wrong.'],
+  ['Fees', 'What does it cost to sell?', 'Moving your store and listing are free. Minting costs network fees only, about $0.001 a listing, paid from your wallet.'],
+];
+const draw = (l) => (topics.innerHTML = l.map(([c, q, a]) => `<details class="step"><summary><span class="muted" style="font-size:12px">${c}</span><br><b>${q}</b></summary><p class="muted">${a}</p></details>`).join('') || '<div class="empty">Nothing matched. Try other words, or ask in bChatX.</div>');
+BMX.helpFind = (q) => { const w = q.toLowerCase().split(/\s+/).filter(Boolean); draw(T.filter((t) => w.every((x) => (t[1] + ' ' + t[2] + ' ' + t[0]).toLowerCase().includes(x)))); };
+draw(T);
+</script>
+</body>
+</html>

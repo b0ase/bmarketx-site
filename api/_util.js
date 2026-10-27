@@ -37,6 +37,6 @@ export function toRow(handle, i) {
     store_handle: handle, title: title.slice(0, 80), price_cents: price, was_cents: was && was > price ? was : null,
     promo: clip(i.promo, 80), condition: clip(i.condition, 60), category: clip(i.category, 120), description: clip(i.description, 8000),
     images, quantity: Math.max(0, Math.min(99999, parseInt(i.quantity, 10) || 1)), ebay_id: clip(i.ebayId, 32), sku: clip(i.sku, 80),
-    source: i.source === 'ebay-page' ? 'ebay-page' : 'ebay-csv', status: 'active',
+    source: ['ebay-page', 'bmarketx'].includes(i.source) ? i.source : 'ebay-csv', status: 'active',
   };
 }

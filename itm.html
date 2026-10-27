@@ -47,7 +47,12 @@
         ${i.description ? `<h2 class="sec">Item description from the seller</h2><p>${esc(i.description)}</p>` : ''}
       </div></div>`;
     root.querySelectorAll('[data-bsv]').forEach(fillBsv);
+    BMX.seen(i);
+    const wb = root.querySelector('[data-soon3]:last-of-type');
+    const wl = () => (wb.textContent = BMX.watching(i.id) ? '♥ Watching' : '♡ Add to Watchlist');
+    wl(); wb.removeAttribute('data-soon3');
     root.querySelectorAll('[data-soon3]').forEach((b) => (b.onclick = () => BMX.alertBar('Coming soon.')));
+    wb.onclick = () => { BMX.toggleWatch(i); wl(); };
     buy.onclick = () => BMX.alertBar('Checkout with bWalletX is the next thing being built. Nothing has been charged.');
   } catch (e) { root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
 })();

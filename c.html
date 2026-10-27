@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shop · bMarketX</title>
+<meta name="description" content="Shop a category on bMarketX.com.">
+<meta property="og:title" content="Search · bMarketX">
+<meta property="og:description" content="Search every bMarketX store.">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+<meta property="og:image" content="https://bmarketx.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body data-page="cat">
+<main class="wrap" id="root"></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+// Category landing pages: /c/<slug>. Same layout for every category, eBay style: hero, sub-categories, listings.
+const CATS = {
+  fashion: { name: 'Fashion', img: 'cat-fashion', blurb: 'Pre-loved and vintage clothes, shoes and accessories, from sellers who moved their shops to Bitcoin.', subs: ['Women\'s', 'Men\'s', 'Kids\'', 'Vintage', 'Shoes', 'Bags', 'Jewellery', 'Watches'] },
+  cards: { name: 'Trading Cards', img: 'cat-cards', blurb: 'Singles, sets and vintage cards, graded and raw.', subs: ['Vintage', 'Japanese', 'Graded', 'Holo', 'Trainer', 'Promos'] },
+  vintage: { name: 'Vintage & Antiques', img: 'cat-vintage', blurb: 'China, teapots, curios and the one-offs you won\'t find twice.', subs: ['China', 'Teapots', 'Glass', 'Silver', 'Clocks', 'Curios'] },
+  records: { name: 'Records & Music', img: 'cat-records', blurb: 'Vinyl, cassettes, turntables and kit.', subs: ['Vinyl', 'Cassettes', 'Turntables', 'Instruments'] },
+  toys: { name: 'Toys', img: 'cat-toys', blurb: 'Tin toys, diecast, figures and games.', subs: ['Diecast', 'Figures', 'Tin toys', 'Games', 'Puzzles'] },
+  electronics: { name: 'Electronics', img: 'cat-electronics', blurb: 'Cameras, audio, computers and retro tech.', subs: ['Cameras', 'Audio', 'Computers', 'Phones', 'Retro'] },
+};
+(async () => {
+  const { esc, api, after, card } = BMX;
+  const slug = location.pathname.split('/')[2] || BMX.params.get('cat') || 'fashion';
+  const c = CATS[slug];
+  if (!c) { root.innerHTML = '<div class="empty">No such category. <a class="u" href="/">Shop by category</a>.</div>'; return; }
+  document.title = c.name + ' · bMarketX';
+  root.innerHTML = `<nav class="muted" style="font-size:12px;margin:14px 0">bMarketX › <b>${c.name}</b></nav>
+    <section class="hero photo" style="min-height:300px"><picture><source srcset="/media/home/${c.img}.webp" type="image/webp"><img src="/media/home/${c.img}.jpg" alt=""></picture>
+      <div class="hero-copy" style="padding:44px 40px"><h1>${c.name}</h1><p>${c.blurb}</p><a class="btn" href="/search?q=${encodeURIComponent(c.name.split(' ')[0])}">Shop all</a></div></section>
+    <h2 class="sec">Shop by category</h2>
+    <div class="tools">${c.subs.map((s) => `<a class="pill" href="/search?q=${encodeURIComponent(s)}">${esc(s)}</a>`).join('')}</div>
+    <h2 class="sec">Latest in ${c.name}</h2><div class="grid" id="latest"><div class="empty">Loading…</div></div>
+    <section class="note" style="margin:30px 0"><b>Sell ${c.name.toLowerCase()} on bMarketX.com.</b> Move your eBay store in a minute, or list one item. <a class="u" href="/list">List an item</a></section>`;
+  try {
+    const q = { fashion: 'vintage clothing', cards: 'card', vintage: 'vintage', records: 'vinyl', toys: 'toy', electronics: 'camera' }[slug];
+    const { items } = await api('/api/search?q=' + encodeURIComponent(q));
+    after(items.map((x, k) => card(x, k)).join('') || '<div class="empty">Nothing listed here yet. <a class="u" href="/list">Be the first.</a></div>', latest);
+  } catch (e) { latest.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+})();
+</script>
+</body>
+</html>
