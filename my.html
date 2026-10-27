@@ -50,7 +50,9 @@
     purchases: () => soon('Purchase history', '<b>Buying opens soon.</b> Everything you buy with bWalletX will show here with its on-chain receipt, so you can always prove what you paid and when.'),
     searches: () => soon('Saved searches', 'Coming soon: save a search and hear when something new is listed.'),
     sellers: () => soon('Saved sellers', 'Coming soon: follow your favourite stores.'),
-    messages: () => soon('Messages', 'Coming soon: talk to buyers and sellers in bChatX, wallet to wallet.'),
+    messages: () => `<h2>Messages</h2><p class="muted">Messages between buyers and sellers are bMail: end-to-end encrypted, wallet to wallet, and they live in your bWalletX.</p>
+      <p style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="https://web.bwalletx.com/" target="_blank" rel="noopener">Open my bMail inbox</a><a class="btn ghost" href="${BMX.mailTo('', 'About my bMarketX order', '')}" target="_blank" rel="noopener">Write a letter</a></p>
+      ${me && me.stores.some((x) => !x.contact) ? `<div class="note warn">Buyers can’t reach you yet: add your bWalletX $handle or paymail to your store under <a class="u" href="#selling">Selling › Edit details</a>.</div>` : ''}`,
     issues: () => soon('Resolution centre', 'Arrives with buying: report an item that didn’t turn up or wasn’t as described.'),
     prefs: () => `<h2>Preferences</h2>${acct()}<p class="muted">Your bWalletX is your account. There’s no email or password to manage here.</p><p><button class="btn ghost" id="signout">Sign out on this browser</button></p>`,
     selling: () => !me ? signIn() : me.stores.length ? stores() : start(),
@@ -89,6 +91,7 @@
       <label>Store name<input name="displayName" value="${esc(s.display_name || '')}" placeholder="Mabel's Teapots" maxlength="80" required></label>
       <label>Store address<div class="pre"><span>bmarketx.com/str/</span><input name="handle" value="${esc(s.handle || '')}" ${s.handle ? 'readonly' : ''} maxlength="64" required></div></label>
       <label style="grid-column:1/-1">About your store<input name="tagline" value="${esc(s.tagline || '')}" placeholder="What you sell, in a line" maxlength="500"></label>
+      <label style="grid-column:1/-1">Messages: your bWalletX $handle or paymail<input name="contact" value="${esc(s.contact || '')}" placeholder="$mabel or mabel@bwalletx.com" maxlength="100"><span class="muted" style="font-weight:400">Buyers write to you here with bMail, from their own wallet.</span></label>
       <div style="grid-column:1/-1;display:flex;gap:10px;align-items:center"><button class="btn" type="submit">${s.handle ? 'Save' : 'Open my store'}</button><span class="err" data-err></span></div>
     </form>`;
   }
@@ -97,7 +100,7 @@
     if (fresh) { const n = f.displayName, h = f.handle; n.oninput = () => { if (!h.dataset.touched) h.value = slug(n.value); }; h.oninput = () => (h.dataset.touched = 1); }
     f.onsubmit = async (e) => {
       e.preventDefault(); const btn = f.querySelector('button'); btn.disabled = true;
-      try { await api('/api/store-save', { method: 'POST', body: JSON.stringify({ handle: f.handle.value, displayName: f.displayName.value, tagline: f.tagline.value }) }); await load(); }
+      try { await api('/api/store-save', { method: 'POST', body: JSON.stringify({ handle: f.handle.value, displayName: f.displayName.value, tagline: f.tagline.value, contact: f.contact.value }) }); await load(); }
       catch (er) { f.querySelector('[data-err]').textContent = er.message; btn.disabled = false; }
     };
   }

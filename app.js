@@ -135,5 +135,7 @@
         <a class="btn ghost" href="https://bwalletx.com/get" target="_blank" rel="noopener">New to bWalletX? Get it free</a></div>
       <span class="muted" style="font-size:12px">Chrome extension, iPhone and Android, or use it straight away at <a class="u" href="https://web.bwalletx.com" target="_blank" rel="noopener">web.bwalletx.com</a>.</span>
     </div>`;
-  window.BMX = { signInBox, esc, usd, card, picture, watch, recent, seen, toggleWatch, watching, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
+  // bMail compose in the buyer's own wallet: they review and press Send. `to` is the store's $handle or paymail.
+  const mailTo = (to, subject, body) => 'https://web.bwalletx.com/?' + new URLSearchParams({ mail: 'compose', ...(to ? { to } : {}), subject, body });
+  window.BMX = { mailTo, signInBox, esc, usd, card, picture, watch, recent, seen, toggleWatch, watching, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
 })();

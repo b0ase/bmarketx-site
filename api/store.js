@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const h = String(req.query.handle || '').toLowerCase();
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1), per = 48;
   try {
-    const [store] = await rows(await d(`bmx_stores?handle=eq.${q(h)}&select=handle,display_name,tagline,logo,ebay_name,ebay_feedback,ebay_sold,ebay_followers,created_at`));
+    const [store] = await rows(await d(`bmx_stores?handle=eq.${q(h)}&select=handle,display_name,tagline,logo,contact,ebay_name,ebay_feedback,ebay_sold,ebay_followers,created_at`));
     if (!store) return res.status(404).json({ error: 'No store here yet.' });
     let f = `bmx_listings?store_handle=eq.${q(h)}&status=eq.active&select=id,title,price_cents,was_cents,promo,condition,images`;
     if (req.query.q) f += `&title=ilike.${q('*' + String(req.query.q).replace(/[*,()]/g, ' ') + '*')}`;

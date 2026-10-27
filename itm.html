@@ -43,6 +43,7 @@
           <button class="btn ghost wide" type="button" data-soon3>Add to cart</button>
           <button class="btn ghost wide" type="button" data-soon3>♡ Add to Watchlist</button>
         </div>
+        <a class="btn ghost wide" target="_blank" rel="noopener" style="margin-bottom:10px" href="${BMX.mailTo(s.contact, `Question about: ${i.title}`.slice(0, 120), `Hi ${s.display_name},\n\n\n\nhttps://bmarketx.com/itm/${i.id}`)}">✉ Contact seller</a>
         <div class="note">Paid in BSV from your bWalletX. The price is set in US dollars and converted at the live BSV rate when you pay.</div>
         ${i.description ? `<h2 class="sec">Item description from the seller</h2><p>${esc(i.description)}</p>` : ''}
       </div></div>`;

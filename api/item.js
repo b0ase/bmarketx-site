@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   try {
     const [item] = await rows(await d(`bmx_listings?id=eq.${id}&select=*`));
     if (!item) return res.status(404).json({ error: 'That item is gone.' });
-    const [store] = await rows(await d(`bmx_stores?handle=eq.${q(item.store_handle)}&select=handle,display_name,logo,ebay_feedback,ebay_sold,ebay_followers`));
+    const [store] = await rows(await d(`bmx_stores?handle=eq.${q(item.store_handle)}&select=handle,display_name,logo,contact,ebay_feedback,ebay_sold,ebay_followers`));
     res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=120');
     return res.status(200).json({ item, store });
   } catch (e) { return fail(res, e); }
