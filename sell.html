@@ -75,7 +75,7 @@ document.querySelectorAll('.note [data-tab]').forEach((a) => (a.onclick = (e) =>
   function step1() {
     next.innerHTML = signedIn
       ? `<button class="btn" id="mine">This is my store. Move it.</button>`
-      : `<div class="note"><b>Connect bWalletX to carry on.</b> Your wallet is your bMarketX account and where buyers pay you. Use the <b>Connect bWalletX</b> button at the top of the page.</div><p><a class="u" href="https://bwalletx.com/get">No wallet yet? Get bWalletX.</a></p>`;
+      : BMX.signInBox('Sign in with bWalletX to move your store.');
     document.getElementById('mine')?.addEventListener('click', step2);
   }
   async function step2(verify = false) {

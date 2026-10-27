@@ -52,7 +52,7 @@
     step2.hidden = true;
     let my = null;
     try { my = await api('/api/my'); } catch (e) {
-      step3.innerHTML = e.status === 401 ? `<div class="note"><b>Connect bWalletX to list.</b> Use the button at the top of the page; your wallet is your account.</div>` : `<p class="err">${esc(e.message)}</p>`;
+      step3.innerHTML = e.status === 401 ? BMX.signInBox('Sign in with bWalletX to list your item.') : `<p class="err">${esc(e.message)}</p>`;
       document.addEventListener('bmarketx-wallet', edit, { once: true }); return;
     }
     if (!my.stores.length) { step3.innerHTML = `<div class="note">You need a store first. <a class="u" href="/my#selling">Open one</a> or <a class="u" href="/sell">move from eBay</a>, then come back.</div>`; return; }

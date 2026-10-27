@@ -57,7 +57,7 @@
   };
 
   function acct() { return me ? `<p class="muted" style="margin:6px 0 18px">Signed in with bWalletX <code title="${esc(me.identityKey)}">${esc(short(me.identityKey))}</code></p>` : signIn(); }
-  function signIn() { return `<div class="note" style="margin:12px 0"><b>Sign in with your wallet.</b> Use <b>Connect bWalletX</b> at the top of the page. Your wallet is your bMarketX account: no email, no password. <a class="u" href="https://bwalletx.com/get">Get bWalletX</a></div>`; }
+  function signIn() { return BMX.signInBox('Sign in with bWalletX to see your account.'); }
   function start() {
     return `<h2>Selling</h2>${acct()}
       <div class="steps" style="grid-template-columns:1fr 1fr">

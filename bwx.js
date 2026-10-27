@@ -3,8 +3,8 @@
    on a desktop with no extension it shows a QR to pair the phone app (or paste into web.bwalletx.com). */
 (() => {
   const C = window.bWalletXConnect;
-  const slots = [...document.querySelectorAll('[data-bwx]')];
-  if (!C || !slots.length) return;
+  if (!C) return;
+  const slots = () => [...document.querySelectorAll('[data-bwx]')];   // looked up each time: pages add sign-in boxes later
   const short = (k) => k.slice(0, 6) + '…' + k.slice(-4);
   const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const css = document.createElement('style');
@@ -19,7 +19,7 @@
   document.head.appendChild(css);
 
   let key = null;
-  const draw = () => slots.forEach((s) => {
+  const draw = () => slots().forEach((s) => {
     s.innerHTML = '';
     const b = document.createElement('button');
     b.type = 'button';
@@ -28,6 +28,7 @@
     b.title = key ? 'Connected. Click to disconnect.' : 'Connect your bWalletX';
     b.onclick = key ? disconnect : connect;
     s.appendChild(b);
+    if (!key && s.closest('.top')) s.insertAdjacentHTML('beforeend', ' <a class="getw-link" href="https://bwalletx.com/get" target="_blank" rel="noopener">Get bWalletX</a>');
   });
   const post = async (url, body) => {
     const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' });
@@ -84,4 +85,5 @@
   }
   fetch('/api/bwalletx/session', { credentials: 'same-origin' }).then((r) => r.json()).then((j) => { key = j.identityKey || null; draw(); }).catch(draw);
   draw();
+  new MutationObserver(() => { if (slots().some((x) => !x.firstChild)) draw(); }).observe(document.body, { childList: true, subtree: true });
 })();

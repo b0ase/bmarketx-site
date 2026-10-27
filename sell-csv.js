@@ -45,7 +45,7 @@ function render() {
   ['sName', 'sHandle'].forEach((id) => document.getElementById(id).oninput = (e) => { found[id === 'sName' ? 'name' : 'handle'] = e.target.value; });
   const go = document.getElementById('go');
   if (!signedIn) {
-    go.innerHTML = `<div class="note"><b>Connect bWalletX to carry on.</b> Your wallet is your bMarketX account and where buyers pay you. Use the <b>Connect bWalletX</b> button at the top of the page.</div>`;
+    go.innerHTML = BMX.signInBox('Sign in with bWalletX to move your store.');
     return;
   }
   go.innerHTML = `<button class="btn" id="send">Move ${items.length.toLocaleString()} listings to bMarketX</button>`;

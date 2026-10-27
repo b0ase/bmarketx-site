@@ -207,3 +207,10 @@ h2.sec { font-size: 22px; margin: 26px 0 12px; }
 .claim h1 { font-size: 28px; margin: 8px 0 4px; word-break: break-all; }
 .claim-steps { text-align: left; margin: 10px 0; padding-left: 20px; display: grid; gap: 8px; }
 .claim-cta { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+/* sign in / get wallet box */
+.getw { display: grid; gap: 10px; border: 1px solid var(--line); border-left: 4px solid var(--yellow); border-radius: 12px; padding: 16px; margin: 14px 0; background: #fff; }
+.getw b { display: block; margin-bottom: 2px; }
+.getw-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.getw-row .btn { min-height: 38px; padding: 0 16px; }
+.getw-link { font-size: 12px; text-decoration: underline; margin-left: 4px; }

@@ -127,5 +127,13 @@
   const pager = (page, pages, href) => pages <= 1 ? '' : `<nav class="pager">${Array.from({ length: Math.min(pages, 10) }, (_, k) => k + 1)
     .map((n) => `<a class="${n === page ? 'on' : ''}" href="${href(n)}">${n}</a>`).join('')}</nav>`;
 
-  window.BMX = { esc, usd, card, picture, watch, recent, seen, toggleWatch, watching, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
+  // Every "you need a wallet" moment: connect if you have one, get it free if you don't.
+  const signInBox = (why) => `<div class="getw">
+      <div><b>${why || 'Sign in with bWalletX to carry on.'}</b>
+        <span class="muted">Your wallet is your bMarketX account and where buyers pay you. No email, no password.</span></div>
+      <div class="getw-row"><span data-bwx></span>
+        <a class="btn ghost" href="https://bwalletx.com/get" target="_blank" rel="noopener">New to bWalletX? Get it free</a></div>
+      <span class="muted" style="font-size:12px">Chrome extension, iPhone and Android, or use it straight away at <a class="u" href="https://web.bwalletx.com" target="_blank" rel="noopener">web.bwalletx.com</a>.</span>
+    </div>`;
+  window.BMX = { signInBox, esc, usd, card, picture, watch, recent, seen, toggleWatch, watching, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
 })();

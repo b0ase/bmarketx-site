@@ -35,7 +35,7 @@ async function load() {
   try { data = await api('/api/my'); render(); }
   catch (e) {
     out.innerHTML = e.status === 401
-      ? `<div class="note"><b>Connect bWalletX</b> with the button at the top of the page to see your stores.</div>`
+      ? BMX.signInBox('Sign in with bWalletX to see your stores.')
       : `<p class="err">${esc(e.message)}</p>`;
   }
 }
