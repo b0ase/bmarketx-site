@@ -53,12 +53,11 @@ document.querySelectorAll('[data-tab]').forEach((a) => (a.onclick = (e) => { e.p
 if (location.hash === '#link') BMX.tab('link');
 { const why = { signin: 'Connect bWalletX first, then sign in with eBay.', declined: 'eBay sign-in was cancelled.', expired: 'That took too long or the wallet changed. Try again.', taken: 'That eBay account is already linked to another wallet. If it’s yours, contact us.', failed: 'eBay didn’t confirm the account. Try again in a minute.', off: 'Sign in with eBay isn’t switched on yet.' }[BMX.params.get('ebay')];
   if (why) document.getElementById('ebayMsg').textContent = why;
-  if (BMX.params.get('ebay') === 'verified') importEbay(BMX.params.get('store')); }
+  if (BMX.params.get('ebay') === 'verified') { showSignIn(false); importEbay(BMX.params.get('store')); } }
 // Bring the verified seller's eBay listings across, 200 a time, with a progress bar.
 async function importEbay(handle) {
-  const box = document.getElementById('ebayImport'), go = document.getElementById('ebayGo');
-  go.textContent = 'Sign in with eBay again';
-  box.innerHTML = `<p><b>✓ eBay account verified.</b> Bringing your listings across…</p><progress max="1" value="0" style="width:100%"></progress><p class="muted" data-st></p>`;
+  const box = document.getElementById('ebayImport');
+  box.innerHTML = `<p>Bringing your listings across from eBay…</p><progress max="1" value="0" style="width:100%"></progress><p class="muted" data-st></p>`;
   const bar = box.querySelector('progress'), st = box.querySelector('[data-st]');
   let page = 1, pages = 1, done = 0;
   try {
@@ -68,9 +67,29 @@ async function importEbay(handle) {
       st.textContent = `${done.toLocaleString()} of ${r.total.toLocaleString()} listings`;
       handle = r.handle;
     } while (++page <= pages);
-    box.innerHTML = `<p><b>✓ Done: ${done.toLocaleString()} listings are in your store.</b></p><p style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="/str/${BMX.esc(handle)}">See my store</a><a class="btn ghost" href="/my#selling">My bMarketX</a></p>`;
-  } catch (e) { st.innerHTML = `<span class="err">${BMX.esc(e.message)}</span> ${done ? `(${done.toLocaleString()} came across.)` : ''} <a class="u" href="#" id="ebayRetry">Try again</a>`; document.getElementById('ebayRetry').onclick = (ev) => { ev.preventDefault(); importEbay(handle); }; }
+    const see = `<p style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="/str/${BMX.esc(handle)}">See my store</a><a class="btn ghost" href="#" data-again>Import again</a></p>`;
+    box.innerHTML = done
+      ? `<p><b>✓ Done: ${done.toLocaleString()} listings are in your store.</b> Run it again any time to pick up new eBay listings and price changes.</p>${see}`
+      : `<p><b>You have no active listings on eBay right now</b>, so there was nothing to bring across. When you list something on eBay, come back and press Import again. You can also <a class="u" href="/list">list an item on bMarketX</a> directly.</p>${see}`;
+    box.querySelector('[data-again]').onclick = (ev) => { ev.preventDefault(); importEbay(handle); };
+  } catch (e) {
+    // the eBay token lapses after 2 hours; only then is a fresh eBay sign-in needed
+    if (e.status === 401) { box.innerHTML = `<p class="muted">To import, eBay needs you to sign in once more (it only lets us read your listings for 2 hours at a time).</p>`; showSignIn(true); return; }
+    st.innerHTML = `<span class="err">${BMX.esc(e.message)}</span> ${done ? `(${done.toLocaleString()} came across.)` : ''} <a class="u" href="#" id="ebayRetry">Try again</a>`;
+    document.getElementById('ebayRetry').onclick = (ev) => { ev.preventDefault(); importEbay(handle); };
+  }
 }
+function showSignIn(on) { document.getElementById('ebayGo').closest('.getw-row').hidden = !on; }
+// Already verified? Say so, and offer the import instead of another eBay sign-in.
+fetch('/api/my', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).then((me) => {
+  const v = me?.stores?.find((x) => x.ebay_name);
+  if (!v || BMX.params.get('ebay') === 'verified') return;
+  showSignIn(false);
+  const box = document.getElementById('ebayImport');
+  box.innerHTML = `<p><b>✓ Verified eBay seller:</b> <a class="u" href="/str/${BMX.esc(v.handle)}">bmarketx.com/str/${BMX.esc(v.handle)}</a> (${v.listings.length.toLocaleString()} listings)</p><p><button class="btn" type="button" data-imp>Import my eBay listings</button></p>`;
+  box.querySelector('[data-imp]').onclick = () => importEbay(v.handle);
+}).catch(() => {});
+
 document.querySelectorAll('.note [data-tab]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); BMX.tab('csv'); }));
 (() => {
   const { esc, api, after, usd } = BMX;
