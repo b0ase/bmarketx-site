@@ -15,7 +15,8 @@ export async function rows(r) {
     console.error('database', r.status, (await r.text()).slice(0, 500));   // details stay in the server log
     throw Object.assign(new Error('The market database had a problem. Try again in a minute.'), { status: 502 });
   }
-  return r.status === 204 ? [] : r.json();
+  const t = await r.text();   // 201/204 with return=minimal come back empty
+  return t ? JSON.parse(t) : [];
 }
 export const fail = (res, e) => {
   if (!e.status) console.error(e);

@@ -239,3 +239,4 @@ h2.sec { font-size: 22px; margin: 26px 0 12px; }
 .order .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .order .acts .btn { min-height: 34px; }
 .order address { font-style: normal; white-space: pre-line; font-size: 14px; }
+[hidden] { display: none !important; }

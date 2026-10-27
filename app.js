@@ -7,7 +7,6 @@
 
   document.body.insertAdjacentHTML('afterbegin', `
   <div class="top"><div class="wrap">
-    <span>Hi! <span data-bwx></span></span>
     <a class="hide-s" href="/deals">Deals</a>
     <a class="hide-s" href="/c/fashion">Fashion</a>
     <a class="hide-s" href="/help">Help &amp; Contact</a>
@@ -22,6 +21,7 @@
         <a href="/my#summary">Summary</a><a href="/my#recent">Recently viewed</a><a href="/my#bids">Bids &amp; offers</a><a href="/my#watch">Watchlist</a><a href="/my#purchases">Purchase history</a><a href="/my#selling">Selling</a><a href="/my#searches">Saved searches</a><a href="/my#sellers">Saved sellers</a><a href="/my#messages">Messages</a>
       </div></div>
       <a href="#" data-soon aria-label="Basket">🛒</a>
+      <span data-bwx></span>
     </div>
   </div></div>
   <div class="head"><div class="wrap">

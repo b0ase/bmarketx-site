@@ -1,10 +1,11 @@
 // GET /api/ebay/start -> 302 to eBay's sign-in. The signed-in wallet proves it owns an eBay account; nothing from
-// eBay is kept until the callback checks it. Scopes are read-only: who you are, and your eBay store.
+// eBay is kept until the callback checks it. Scopes are read-only: who you are, your eBay store, and public data
+// (the Trading API calls for your listings and feedback run on it).
 import { randomBytes } from 'node:crypto';
 import { seal, secret } from '../bwalletx/_auth.js';
 import { who } from '../_util.js';
 
-export const SCOPES = ['https://api.ebay.com/oauth/api_scope/commerce.identity.readonly', 'https://api.ebay.com/oauth/api_scope/sell.stores.readonly'];
+export const SCOPES = ['https://api.ebay.com/oauth/api_scope', 'https://api.ebay.com/oauth/api_scope/commerce.identity.readonly', 'https://api.ebay.com/oauth/api_scope/sell.stores.readonly'];
 const env = (k) => String(process.env[k] || '').trim();
 
 export default async function handler(req, res) {
