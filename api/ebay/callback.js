@@ -9,6 +9,7 @@ import { db } from '../_db.js';
 import { q, rows, who } from '../_util.js';
 import { storeName } from '../../lib/ebay.js';
 import { feedback } from '../../lib/ebay-api.js';
+import { RETURNS } from './wallet/[action].js';
 
 const env = (k) => String(process.env[k] || '').trim();
 const back = (res, why) => res.redirect(302, `/sell?ebay=${why}#link`);
@@ -27,11 +28,28 @@ async function token(code) {
 }
 const get = async (url, t) => { const r = await fetch(url, { headers: { authorization: `Bearer ${t}`, accept: 'application/json' } }).catch(() => null); return r?.ok ? r.json() : null; };
 
+// bWalletX "Link your accounts" (api/ebay/wallet): no bMarketX session and nothing stored. Who the eBay user is goes
+// back to the wallet in a sealed ticket that only the holder of the wallet's secret can open (preview).
+async function walletReturn(req, res, st) {
+  const to = RETURNS[st.ret] || 'https://www.bwallet.space/social';
+  const go = (hash) => res.redirect(302, `${to}#${hash}`);
+  if (req.query.error || !req.query.code) return go('error=cancelled');
+  if (!(st.exp > Date.now())) return go('error=expired');
+  try {
+    const { t } = await token(String(req.query.code));
+    const user = await get('https://apiz.ebay.com/commerce/identity/v1/user/', t);
+    if (!user?.userId || !user?.username) return go('error=failed');
+    const ticket = seal(secret(), { k: 'ebay-wallet-ticket', userId: String(user.userId), username: String(user.username), vh: st.vh, exp: Date.now() + 10 * 60_000 });
+    return go(`p=ebay&t=${encodeURIComponent(ticket)}`);
+  } catch (e) { console.error('ebay wallet link', e.message); return go('error=failed'); }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Set-Cookie', CLEAR);
-  if (req.query.error || !req.query.code) return back(res, 'declined');
   const st = open(secret(), req.query.state);
+  if (st?.wallet) return walletReturn(req, res, st);
+  if (req.query.error || !req.query.code) return back(res, 'declined');
   const me = await who(req);
   if (!st || st.exp < Date.now() || st.n !== cookie(req.headers.cookie, 'bmx_ebay') || !me || st.me !== me) return back(res, 'expired');
   const d = db();
