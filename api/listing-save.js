@@ -1,7 +1,7 @@
 // POST /api/listing-save { store, title, priceCents, wasCents?, quantity, condition, category?, description?, images: [https…] }
 // -> { id }  A new listing in a store the signed-in wallet owns.
 import { db } from './_db.js';
-import { body, fail, originOk, q, rows, toRow, who } from './_util.js';
+import { body, fail, originOk, q, rows, toRow, who, limited } from './_util.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -9,6 +9,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const me = await who(req);
   if (!me) return res.status(401).json({ error: 'Connect bWalletX first.' });
+  if (await limited(req, res, 'listing', 120, 600, me)) return;
   const d = db();
   if (!d) return res.status(503).json({ error: 'The market database is not switched on yet.' });
   const b = await body(req);

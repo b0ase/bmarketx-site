@@ -3,7 +3,7 @@
 // in the bmx_ebay_t cookie by the callback. Re-running updates listings in place by eBay item number.
 import { open, secret } from '../bwalletx/_auth.js';
 import { db } from '../_db.js';
-import { fail, originOk, q, rows, toRow, who, body } from '../_util.js';
+import { fail, originOk, q, rows, toRow, who, body, limited } from '../_util.js';
 import { activeListings } from '../../lib/ebay-api.js';
 
 const cookie = (h, k) => (String(h || '').match(new RegExp(`(?:^|;\\s*)${k}=([^;]+)`)) || [])[1];
@@ -14,6 +14,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const me = await who(req);
   if (!me) return res.status(401).json({ error: 'Connect bWalletX first.' });
+  if (await limited(req, res, 'ebayimp', 200, 600, me)) return;
   const s = open(secret(), cookie(req.headers.cookie, 'bmx_ebay_t'));
   if (!s || s.me !== me || s.exp < Date.now()) return res.status(401).json({ error: 'Sign in with eBay again to bring your listings.', ebay: true });
   const d = db();

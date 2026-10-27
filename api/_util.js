@@ -1,5 +1,6 @@
 import { readCookie, verifySession } from '@bwalletx/connect/server';
 import { secret } from './bwalletx/_auth.js';
+import { db } from './_db.js';
 export { body } from './bwalletx/_auth.js';
 
 /** The signed-in bWalletX identity key, or null. */
@@ -41,4 +42,17 @@ export function toRow(handle, i) {
     ship_cents: i.shipCents === '' || i.shipCents == null ? null : Math.max(0, Math.min(100000, Math.round(+i.shipCents) || 0)),
     source: ['ebay-page', 'bmarketx'].includes(i.source) ? i.source : 'ebay-csv', status: 'active',
   };
+}
+
+const ip = (req) => String(req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+/** Rate limit: true (and a 429 sent) when `name` has run more than n times in `secs` for this wallet or IP.
+ *  Fails open if the counter isn't reachable, so a database hiccup never locks people out. */
+export async function limited(req, res, name, n, secs, id) {
+  const d = db();
+  if (!d) return false;
+  try {
+    const r = await d('rpc/bmx_hit', { method: 'POST', body: JSON.stringify({ p_key: `${name}:${id || ip(req)}`, p_limit: n, p_secs: secs }) });
+    if (r.ok && (await r.json()) === false) { res.status(429).json({ error: 'Too many tries. Wait a few minutes and try again.' }); return true; }
+  } catch {}
+  return false;
 }

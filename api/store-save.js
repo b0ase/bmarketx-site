@@ -1,7 +1,7 @@
 // POST /api/store-save { handle, displayName, tagline?, contact? } -> { handle }
 // Opens a new store for the signed-in wallet, or updates the name and about text of one it owns.
 import { db } from './_db.js';
-import { body, fail, originOk, q, rows, who } from './_util.js';
+import { body, fail, originOk, q, rows, who, limited } from './_util.js';
 
 const HANDLE = /^[a-z0-9][a-z0-9._-]{1,63}$/;
 export default async function handler(req, res) {
@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const me = await who(req);
   if (!me) return res.status(401).json({ error: 'Connect bWalletX first.' });
+  if (await limited(req, res, 'store', 30, 600, me)) return;
   const d = db();
   if (!d) return res.status(503).json({ error: 'The market database is not switched on yet.' });
   const b = await body(req);

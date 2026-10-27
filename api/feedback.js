@@ -1,12 +1,13 @@
 // POST /api/feedback { page, rating 1-5, comment?, contact?, withWallet? } -> { ok }
 import { db } from './_db.js';
-import { body, fail, originOk, rows, who } from './_util.js';
+import { body, fail, limited, originOk, rows, who } from './_util.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   if (!originOk(req.headers.origin)) return res.status(403).json({ error: 'Wrong origin.' });
   const d = db();
   if (!d) return res.status(503).json({ error: 'Feedback isn’t switched on yet.' });
+  if (await limited(req, res, 'feedback', 5, 600)) return;
   const b = await body(req);
   const rating = parseInt(b.rating, 10);
   if (!(rating >= 1 && rating <= 5)) return res.status(400).json({ error: 'Pick a score from 1 to 5.' });

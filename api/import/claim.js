@@ -8,7 +8,7 @@ import { createHmac, randomBytes } from 'node:crypto';
 import { fetchStore, storeName } from '../../lib/ebay.js';
 import { db } from '../_db.js';
 import { secret } from '../bwalletx/_auth.js';
-import { body, fail, originOk, q, rows, toRow, who } from '../_util.js';
+import { body, fail, originOk, q, rows, toRow, who, limited } from '../_util.js';
 
 const codeFor = (name, me) => 'bmx-' + createHmac('sha256', secret()).update(`ebay-proof\n${name}\n${me}`).digest('hex').slice(0, 6);
 
@@ -18,6 +18,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   const me = await who(req);
   if (!me) return res.status(401).json({ error: 'Connect bWalletX first.' });
+  if (await limited(req, res, 'claim', 60, 600, me)) return;
   const d = db();
   if (!d) return res.status(503).json({ error: 'The market database is not switched on yet.' });
   const b = await body(req);

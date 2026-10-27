@@ -1,10 +1,12 @@
 // POST /api/bwalletx/verify { identityKey, nonce, signature, ticket } -> session cookie + { identityKey }
 import { originAllowed, serializeCookie, signSession, verifySignIn } from '@bwalletx/connect/server';
 import { ORIGIN, body, open, originOk, secret } from './_auth.js';
+import { limited } from '../_util.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   if (!originOk(req.headers.origin)) return res.status(403).json({ error: 'Wrong origin.' });
+  if (await limited(req, res, 'verify', 40, 600)) return;
   const s = secret();
   if (!s) return res.status(503).json({ error: 'bWalletX connect is not switched on yet.' });
   const b = await body(req);

@@ -9,7 +9,7 @@
 import { randomBytes } from 'node:crypto';
 import { P2PKH, PrivateKey, PublicKey, Transaction } from '@bsv/sdk';
 import { db } from './_db.js';
-import { body, fail, originOk, q, rows, who } from './_util.js';
+import { body, fail, originOk, q, rows, who, limited } from './_util.js';
 
 const ANYONE = new PrivateKey(1);
 export const ANYONE_KEY = ANYONE.toPublicKey().toString();
@@ -128,6 +128,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     if (!originOk(req.headers.origin)) return res.status(403).json({ error: 'Wrong origin.' });
     const b = await body(req);
+    if (b.action === 'quote' && await limited(req, res, 'quote', 30, 600, me)) return;
     if (b.action === 'quote') return res.status(200).json(await quote(d, me, b));
     if (b.action === 'pay') return res.status(200).json(await pay(d, me, b));
     if (STEPS[b.action]) return res.status(200).json(await step(d, me, b));
