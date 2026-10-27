@@ -12,7 +12,7 @@
     const r = await fetch(ADS + path, { ...init, headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}), ...init.headers } });
     const j = await r.json().catch(() => ({}));
     if (r.status === 503) throw new Error('Promote isn’t taking orders yet. Nothing has been charged.');
-    if (!r.ok) throw new Error(j.error || `bAds answered ${r.status}.`);
+    if (!r.ok) throw new Error(`${j.error || `bAds answered ${r.status}.`}${r.status === 409 ? ' (409)' : ''}`);
     return j;
   }
 
@@ -52,7 +52,11 @@
         const r = await w.createAction({ description: 'bAds promotion'.slice(0, 50), labels: ['bmarketx', 'bads'],
           outputs: q.payTo.map((p) => ({ lockingScript: p.lockingScript, satoshis: p.sats, outputDescription: 'bAds promotion' })), options: { randomizeOutputs: false } });
         paid = true;
-        await ads(`/campaigns/${c.id}/paid`, { method: 'POST', body: JSON.stringify({ quoteId: q.quoteId, txid: r.txid, beef: hex(r.tx) }) });
+        // 409 not_seen: the ad server can't see the payment yet; asking again is safe (same quote and txid)
+        for (let k = 0; ; k++) {
+          try { await ads(`/campaigns/${c.id}/paid`, { method: 'POST', body: JSON.stringify({ quoteId: q.quoteId, txid: r.txid, beef: hex(r.tx) }) }); break; }
+          catch (er) { if (k >= 5 || !/not_seen|409/.test(er.message)) throw er; btn.textContent = 'Waiting for the network…'; await new Promise((ok) => setTimeout(ok, 3000)); }
+        }
         f.innerHTML = `<p><b>Paid. Your ad is waiting for review</b> and starts as soon as it’s approved.</p><div class="ck-row"><button class="btn" type="button" data-x>Close</button></div>`;
         f.querySelector('[data-x]').onclick = () => m.remove();
       } catch (er) {
