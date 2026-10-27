@@ -17,6 +17,9 @@
   "line": "#2A3142",
   "success": "#86B817",
   "danger": "#FF5A5F",
-  "livery": { "stripe": "four-colour", "display": "Space Grotesk", "label": "Inter" },
-  "badge": "bmarketx"
+  "livery": {
+    "stripe": "four-colour",
+    "display": "Space Grotesk",
+    "label": "Inter"
+  }
 }
