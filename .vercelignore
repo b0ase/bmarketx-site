@@ -3,3 +3,4 @@ migrations
 brand/README.md
 brand/*.svg.bak
 .env*
+media-src

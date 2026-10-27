@@ -17,19 +17,40 @@
 </head>
 <body data-page="home">
 <main class="wrap">
-  <section class="hero">
-    <div>
+  <section class="hero photo">
+    <picture><source srcset="/media/home/hero.webp" type="image/webp"><img src="/media/home/hero.jpg" alt="" fetchpriority="high" width="1600" height="900"></picture>
+    <div class="hero-copy">
+      <span class="kicker">New on Bitcoin</span>
       <h1>Your eBay store,<br>on Bitcoin.</h1>
-      <p>Same store, same listings, same layout your buyers know. Paste your eBay store link and bMarketX moves your listings over. Buyers pay you in BSV straight from bWalletX.</p>
-      <a class="btn" href="/sell">Move my store</a>
+      <p>Same store, same listings, same layout your buyers know. Move it to bMarketX.com in about a minute, and get paid in BSV straight to your bWalletX.</p>
+      <div class="cta"><a class="btn" href="/sell">Move my store</a><a class="btn ghost" href="/search">Browse listings</a></div>
     </div>
-    <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
   </section>
+
+  <h2 class="sec">Shop by category</h2>
+  <nav class="catrow">
+    <a href="/search?q=card"><picture><source srcset="/media/home/cat-cards.webp" type="image/webp"><img src="/media/home/cat-cards.jpg" alt="" loading="lazy" width="400" height="400"></picture><b>Trading Cards</b></a>
+    <a href="/search?q=vintage"><picture><source srcset="/media/home/cat-vintage.webp" type="image/webp"><img src="/media/home/cat-vintage.jpg" alt="" loading="lazy" width="400" height="400"></picture><b>Vintage &amp; Antiques</b></a>
+    <a href="/search?q=vinyl"><picture><source srcset="/media/home/cat-records.webp" type="image/webp"><img src="/media/home/cat-records.jpg" alt="" loading="lazy" width="400" height="400"></picture><b>Records &amp; Music</b></a>
+    <a href="/search?q=toy"><picture><source srcset="/media/home/cat-toys.webp" type="image/webp"><img src="/media/home/cat-toys.jpg" alt="" loading="lazy" width="400" height="400"></picture><b>Toys</b></a>
+    <a href="/search?q=vintage clothing"><picture><source srcset="/media/home/cat-fashion.webp" type="image/webp"><img src="/media/home/cat-fashion.jpg" alt="" loading="lazy" width="400" height="400"></picture><b>Fashion</b></a>
+    <a href="/search?q=camera"><picture><source srcset="/media/home/cat-electronics.webp" type="image/webp"><img src="/media/home/cat-electronics.jpg" alt="" loading="lazy" width="400" height="400"></picture><b>Electronics</b></a>
+  </nav>
+
+  <h2 class="sec">Move your shop in three steps</h2>
   <div class="steps">
-    <div class="step"><span class="n" style="background:var(--red)">1</span><b>Paste your store link</b><span class="muted">ebay.com/str/yourstore. We read your listings, photos, prices and feedback.</span></div>
-    <div class="step"><span class="n" style="background:var(--blue)">2</span><b>Prove it's yours</b><span class="muted">Add a short code to your eBay store description, then connect bWalletX. Your wallet is your account.</span></div>
-    <div class="step"><span class="n" style="background:var(--green)">3</span><b>Sell for BSV</b><span class="muted">Your store goes live at bmarketx.com/str/yourstore. Buyers pay you in BSV from bWalletX.</span></div>
+    <div class="step"><span class="n" style="background:var(--red)">1</span><b>Bring your listings</b><span class="muted">Upload the "All active listings" file from eBay Seller Hub, or paste your store link. Titles, prices, stock and conditions come across.</span></div>
+    <div class="step"><span class="n" style="background:var(--blue)">2</span><b>Your wallet is your account</b><span class="muted">Connect bWalletX. No password. Prove your eBay store with a short code and your feedback comes with you.</span></div>
+    <div class="step"><span class="n" style="background:var(--green)">3</span><b>Own your shop</b><span class="muted">Mint every listing into your own wallet, photo and all, for about $0.001 each. Yours, not ours.</span></div>
   </div>
+
+  <section class="band">
+    <div><b class="big" style="color:var(--red)">1 min</b><span>to move a whole store</span></div>
+    <div><b class="big" style="color:var(--blue)">$0.001</b><span>to mint a listing on chain</span></div>
+    <div><b class="big" style="color:var(--yellow)">0</b><span>passwords</span></div>
+    <div><b class="big" style="color:var(--green)">100%</b><span>owned by the seller</span></div>
+  </section>
+
   <h2 class="sec">Latest listings</h2>
   <div class="grid" id="latest"><div class="empty">Loading…</div></div>
 </main>
