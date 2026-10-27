@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@bsv/sdk": "2.8.10",
-    "@bwalletx/connect": "0.5.0"
+    "@bwalletx/connect": "0.5.0",
+    "sharp": "0.34.4"
   }
 }

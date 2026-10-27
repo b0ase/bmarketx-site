@@ -22,6 +22,7 @@
 <script src="/app.js"></script>
 <script src="/bwx.js"></script>
 <script src="/checkout.js"></script>
+<script src="/promote.js"></script>
 <script>
 (async () => {
   const { esc, api, usd, fillBsv } = BMX;
@@ -57,6 +58,12 @@
     root.querySelectorAll('[data-soon3]').forEach((b) => (b.onclick = () => BMX.alertBar('Coming soon.')));
     wb.onclick = () => { BMX.toggleWatch(i); wl(); };
     buy.onclick = () => BMXcheckout(i, s);
+    // the seller sees Promote on their own listings, once bAds is taking orders
+    fetch('/api/my', { credentials: 'same-origin' }).then((r) => (r.ok ? r.json() : null)).then((me) => {
+      if (!me?.promote || !me.stores.some((x) => x.handle === s.handle)) return;
+      buy.insertAdjacentHTML('afterend', '<button class="btn ghost wide" type="button" id="promo">📣 Promote this listing</button>');
+      promo.onclick = () => BMXpromote(i);
+    }).catch(() => {});
   } catch (e) { root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
 })();
 </script>

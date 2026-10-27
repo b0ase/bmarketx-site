@@ -13,6 +13,6 @@ export default async function handler(req, res) {
     for (const s of stores) {
       s.listings = await rows(await d(`bmx_listings?store_handle=eq.${q(s.handle)}&status=eq.active&select=id,title,price_cents,quantity,sku,images,token_id,minted_at&order=id&limit=5000`));
     }
-    return res.status(200).json({ identityKey: me, stores });
+    return res.status(200).json({ identityKey: me, stores, promote: process.env.BADS_PROMOTE === 'on' });
   } catch (e) { return fail(res, e); }
 }

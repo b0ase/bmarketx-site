@@ -62,6 +62,9 @@
   "functions": {
     "api/page.js": {
       "includeFiles": "{itm,str}.html"
+    },
+    "api/square.js": {
+      "includeFiles": "brand/logo.svg"
     }
   }
 }
