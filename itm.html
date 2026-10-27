@@ -21,6 +21,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="/app.js"></script>
 <script src="/bwx.js"></script>
+<script src="/checkout.js"></script>
 <script>
 (async () => {
   const { esc, api, usd, fillBsv } = BMX;
@@ -37,14 +38,15 @@
         <div class="bsv" data-bsv="${i.price_cents}" style="font-size:14px"></div>
         ${i.promo ? `<div class="promo" style="margin-top:6px">${esc(i.promo)}</div>` : ''}
         <div class="row"><span class="muted">Condition:</span><b>${esc(i.condition || 'Used')}</b></div>
-        <div class="row"><span class="muted">Quantity:</span><span>${i.quantity} available</span></div>
+        <div class="row"><span class="muted">Quantity:</span><span>${i.status === 'sold' || !i.quantity ? '<b>Sold out</b>' : i.quantity + ' available'}</span></div>
+        <div class="row"><span class="muted">Postage:</span><span>${(i.ship_cents ?? s.ship_cents ?? 0) ? usd(i.ship_cents ?? s.ship_cents) : 'Free'}</span></div>
         <div class="buy">
-          <button class="btn wide" type="button" id="buy">Buy It Now</button>
+          <button class="btn wide" type="button" id="buy" ${i.status !== 'active' || !i.quantity ? 'disabled' : ''}>${i.status !== 'active' || !i.quantity ? 'Sold out' : 'Buy It Now'}</button>
           <button class="btn ghost wide" type="button" data-soon3>Add to cart</button>
           <button class="btn ghost wide" type="button" data-soon3>♡ Add to Watchlist</button>
         </div>
         <a class="btn ghost wide" target="_blank" rel="noopener" style="margin-bottom:10px" href="${BMX.mailTo(s.contact, `Question about: ${i.title}`.slice(0, 120), `Hi ${s.display_name},\n\n\n\nhttps://bmarketx.com/itm/${i.id}`)}">✉ Contact seller</a>
-        <div class="note">Paid in BSV from your bWalletX. The price is set in US dollars and converted at the live BSV rate when you pay.</div>
+        <div class="note">Paid in BSV from your bWalletX, straight to the seller. No bMarketX fee. The price is set in US dollars and converted at the live BSV rate when you pay.</div>
         ${i.description ? `<h2 class="sec">Item description from the seller</h2><p>${esc(i.description)}</p>` : ''}
       </div></div>`;
     root.querySelectorAll('[data-bsv]').forEach(fillBsv);
@@ -54,7 +56,7 @@
     wl(); wb.removeAttribute('data-soon3');
     root.querySelectorAll('[data-soon3]').forEach((b) => (b.onclick = () => BMX.alertBar('Coming soon.')));
     wb.onclick = () => { BMX.toggleWatch(i); wl(); };
-    buy.onclick = () => BMX.alertBar('Checkout with bWalletX is the next thing being built. Nothing has been charged.');
+    buy.onclick = () => BMXcheckout(i, s);
   } catch (e) { root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
 })();
 </script>

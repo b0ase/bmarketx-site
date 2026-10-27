@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const d = db();
   if (!d) return res.status(503).json({ error: 'The market database is not switched on yet.' });
   try {
-    const stores = await rows(await d(`bmx_stores?owner_key=eq.${q(me)}&select=handle,display_name,tagline,logo,contact,ebay_name&order=created_at`));
+    const stores = await rows(await d(`bmx_stores?owner_key=eq.${q(me)}&select=handle,display_name,tagline,logo,contact,ship_cents,ebay_name&order=created_at`));
     for (const s of stores) {
       s.listings = await rows(await d(`bmx_listings?store_handle=eq.${q(s.handle)}&status=eq.active&select=id,title,price_cents,quantity,sku,images,token_id,minted_at&order=id&limit=5000`));
     }

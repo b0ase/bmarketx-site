@@ -214,3 +214,28 @@ h2.sec { font-size: 22px; margin: 26px 0 12px; }
 .getw-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .getw-row .btn { min-height: 38px; padding: 0 16px; }
 .getw-link { font-size: 12px; text-decoration: underline; margin-left: 4px; }
+
+/* checkout */
+.ckout { background: #fff; color: var(--ink); border-radius: 16px; padding: 22px; width: 100%; max-width: 460px; max-height: calc(100vh - 32px); overflow: auto; }
+.ckout h3 { margin: 0 0 12px; font-size: 22px; }
+.ckout form { display: grid; gap: 12px; }
+.ckout fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; }
+.ckout legend { font-weight: 700; margin-bottom: 6px; }
+.ckout input:not([type=checkbox]) { border: 1px solid #8F8F8F; border-radius: 8px; padding: 10px; font: inherit; width: 100%; box-sizing: border-box; }
+.ck-item { display: flex; gap: 12px; align-items: center; }
+.ck-item img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; }
+.ck-item div { display: grid; gap: 2px; }
+.ck-qty { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+.ck-qty input { width: 80px !important; }
+.ck-sum { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.ck-sum span:nth-last-child(2), .ck-sum b:last-child { font-size: 18px; font-weight: 800; }
+.ck-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+.ck-big { font-size: 32px; font-weight: 800; text-align: center; margin: 8px 0 4px; }
+.orders { display: grid; gap: 12px; margin-top: 14px; }
+.order { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 6px; }
+.order .hd { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.order .tag { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 10px; background: var(--soft); }
+.order .tag.paid { background: #fff4d6; } .order .tag.shipped { background: #e1efff; } .order .tag.received { background: #e3f6e3; }
+.order .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.order .acts .btn { min-height: 34px; }
+.order address { font-style: normal; white-space: pre-line; font-size: 14px; }

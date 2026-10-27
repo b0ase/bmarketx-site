@@ -19,15 +19,16 @@ export default async function handler(req, res) {
   // a bWalletX $handle or a paymail, for buyers' bMail
   const contact = String(b.contact || '').trim().toLowerCase() || null;
   if (contact && !/^(\$[a-z0-9._-]{1,40}|[a-z0-9._-]{1,64}@[a-z0-9.-]+\.[a-z]{2,})$/.test(contact)) return res.status(400).json({ error: 'Messages: use your bWalletX $handle or paymail, like $mabel or mabel@bwalletx.com.' });
+  const ship = Math.max(0, Math.min(100000, Math.round(+b.shipCents) || 0));   // default postage, in cents
   if (!HANDLE.test(handle)) return res.status(400).json({ error: 'Store address: 2–64 letters, numbers, dots, dashes or underscores.' });
   if (!name) return res.status(400).json({ error: 'Give your store a name.' });
   try {
     const [st] = await rows(await d(`bmx_stores?handle=eq.${q(handle)}&select=owner_key`));
     if (st && st.owner_key !== me) return res.status(409).json({ error: `bmarketx.com/str/${handle} is taken. Pick another address.` });
     if (st) {
-      await rows(await d(`bmx_stores?handle=eq.${q(handle)}`, { method: 'PATCH', headers: { prefer: 'return=minimal' }, body: JSON.stringify({ display_name: name, tagline, contact }) }));
+      await rows(await d(`bmx_stores?handle=eq.${q(handle)}`, { method: 'PATCH', headers: { prefer: 'return=minimal' }, body: JSON.stringify({ display_name: name, tagline, contact, ship_cents: ship }) }));
     } else {
-      await rows(await d('bmx_stores', { method: 'POST', headers: { prefer: 'return=minimal' }, body: JSON.stringify({ handle, owner_key: me, display_name: name, tagline, contact }) }));
+      await rows(await d('bmx_stores', { method: 'POST', headers: { prefer: 'return=minimal' }, body: JSON.stringify({ handle, owner_key: me, display_name: name, tagline, contact, ship_cents: ship }) }));
     }
     return res.status(200).json({ handle });
   } catch (e) { return fail(res, e); }
