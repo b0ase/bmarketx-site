@@ -47,6 +47,10 @@ export default async function handler(req, res) {
       if (s) html = head(html, { title: `${s.display_name} | bMarketX`, url: `https://bmarketx.com/str/${s.handle}`,
         desc: s.tagline || `${s.display_name}${s.verified_at ? ', a verified eBay seller,' : ''} on bMarketX. Paid in BSV straight to the seller with bWalletX.`,
         image: s.logo || 'https://bmarketx.com/brand/og.png' });
+      // unclaimed: the name from the address only, nothing from the eBay store
+      else if (/^[a-z0-9._-]{2,64}$/.test(h)) html = head(html, { title: `${h} on bMarketX: claim your store`, url: `https://bmarketx.com/str/${h}`,
+        desc: `bmarketx.com/str/${h} is kept for the eBay seller ${h}. Move your store in about a minute and get paid in BSV straight to your wallet.`,
+        image: 'https://bmarketx.com/brand/og.png' });
     }
   } catch { /* the plain page still works */ }
   res.setHeader('content-type', 'text/html; charset=utf-8');
