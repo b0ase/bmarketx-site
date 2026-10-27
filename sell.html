@@ -27,8 +27,9 @@
     <div id="csvOut"></div>
   </section>
   <section id="tab-link" hidden>
-  <p class="muted" style="margin-top:16px">Paste your store link. We copy your listings, photos, prices and feedback, and your store gets the <b>verified eBay seller</b> mark.</p>
-  <form class="field" id="f"><input id="url" placeholder="https://www.ebay.com/str/yourstore" autocomplete="off" required><button class="btn" type="submit">Find my store</button></form>
+  <div class="note warn" style="margin-top:16px"><b>Coming soon: Sign in with eBay.</b> Copying a store straight from its link, with your photos, feedback and the <b>verified eBay seller</b> mark, arrives with Sign in with eBay, which is waiting on eBay’s approval. eBay doesn’t let other sites read store pages automatically.<br><br>
+    Move today with the <a class="u" href="#csv" data-tab="csv">Upload CSV</a> tab. Your store address is kept for you, and you can verify it the moment Sign in with eBay is live.</div>
+  <form class="field" id="f" hidden><input id="url" placeholder="https://www.ebay.com/str/yourstore" autocomplete="off" required><button class="btn" type="submit">Find my store</button></form>
   <div id="out"></div>
   </section>
 </div></main>
@@ -44,12 +45,13 @@ BMX.tab = (t) => {
 };
 document.querySelectorAll('[data-tab]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); BMX.tab(a.dataset.tab); }));
 if (location.hash === '#link') BMX.tab('link');
+document.querySelectorAll('.note [data-tab]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); BMX.tab('csv'); }));
 (() => {
   const { esc, api, after, usd } = BMX;
   let store = null, signedIn = false;
   fetch('/api/bwalletx/session', { credentials: 'same-origin' }).then((r) => r.json()).then((j) => { signedIn = !!j.identityKey; }).catch(() => {});
   document.addEventListener('bmarketx-wallet', () => { signedIn = true; if (store) step1(); });
-  const pre = BMX.params.get('store'); if (pre) { BMX.tab('link'); url.value = pre; setTimeout(() => f.requestSubmit(), 0); }
+  const pre = BMX.params.get('store'); window.BMX_PREHANDLE = pre; if (false) { BMX.tab('link'); url.value = pre; setTimeout(() => f.requestSubmit(), 0); }
 
   f.onsubmit = async (e) => {
     e.preventDefault();

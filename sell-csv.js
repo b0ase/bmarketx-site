@@ -39,7 +39,7 @@ function render() {
     ${items.length > 200 ? `<p class="muted">Showing the first 200 of ${items.length.toLocaleString()}.</p>` : ''}
     <div class="form2">
       <label>Store name<input id="sName" value="${esc(found.name || '')}" placeholder="Moisty Collectibles" maxlength="80"></label>
-      <label>Store address<div class="pre"><span>bmarketx.com/str/</span><input id="sHandle" value="${esc(found.handle || guessHandle(fileName))}" maxlength="64"></div></label>
+      <label>Store address<div class="pre"><span>bmarketx.com/str/</span><input id="sHandle" value="${esc(found.handle || window.BMX_PREHANDLE || guessHandle(fileName))}" maxlength="64"></div></label>
     </div>
     <div id="go"></div>`;
   ['sName', 'sHandle'].forEach((id) => document.getElementById(id).oninput = (e) => { found[id === 'sName' ? 'name' : 'handle'] = e.target.value; });
