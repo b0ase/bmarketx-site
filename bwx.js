@@ -66,6 +66,7 @@
       const v = await post('/api/bwalletx/verify', { identityKey: r.identityKey, nonce: r.nonce, signature: r.signature, ticket });
       key = v.identityKey; window.bmxWallet = r.wallet || null; close(); draw();   // kept for checkout (app.js)
       document.dispatchEvent(new CustomEvent('bmarketx-wallet', { detail: { identityKey: key } }));
+      window.BMX?.track('wallet_connected');
       // first stop after signing in: your account page, unless this page is already a step in selling
       if (!['sell', 'mint', 'my'].includes(document.body.dataset.page)) location.href = '/my';
     } catch (e) {

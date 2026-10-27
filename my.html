@@ -140,7 +140,7 @@
     if (fresh) { const n = f.displayName, h = f.handle; n.oninput = () => { if (!h.dataset.touched) h.value = slug(n.value); }; h.oninput = () => (h.dataset.touched = 1); }
     f.onsubmit = async (e) => {
       e.preventDefault(); const btn = f.querySelector('button'); btn.disabled = true;
-      try { await api('/api/store-save', { method: 'POST', body: JSON.stringify({ handle: f.handle.value, displayName: f.displayName.value, tagline: f.tagline.value, contact: f.contact.value, shipCents: Math.round(parseFloat(f.ship.value.replace(/[^\d.]/g, '')) * 100) || 0 }) }); await load(); }
+      try { await api('/api/store-save', { method: 'POST', body: JSON.stringify({ handle: f.handle.value, displayName: f.displayName.value, tagline: f.tagline.value, contact: f.contact.value, shipCents: Math.round(parseFloat(f.ship.value.replace(/[^\d.]/g, '')) * 100) || 0 }) }); if (fresh) BMX.track('store_opened'); await load(); }
       catch (er) { f.querySelector('[data-err]').textContent = er.message; btn.disabled = false; }
     };
   }

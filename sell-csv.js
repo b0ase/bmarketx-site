@@ -70,6 +70,7 @@ async function send() {
       bar.style.width = Math.round(Math.min(1, (k + 500) / all.length) * 100) + '%';
       msg.textContent = `${n.toLocaleString()} of ${all.length.toLocaleString()} listings moved`;
     }
+    BMX.track('listings_imported', { n });
     go.innerHTML = `<div class="note"><b>Your store is live.</b> ${n.toLocaleString()} listings moved.
       It shows as <b>not yet verified</b> until you prove your eBay store on the Store link tab, which also carries over your feedback.</div>
       <p><a class="btn" href="/str/${esc(handle)}">Open my bMarketX store</a></p>`;

@@ -67,6 +67,7 @@ async function importEbay(handle) {
       st.textContent = `${done.toLocaleString()} of ${r.total.toLocaleString()} listings`;
       handle = r.handle;
     } while (++page <= pages);
+    if (done) BMX.track('listings_imported', { n: done });
     const see = `<p style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="/str/${BMX.esc(handle)}">See my store</a><a class="btn ghost" href="#" data-again>Import again</a></p>`;
     box.innerHTML = done
       ? `<p><b>✓ Done: ${done.toLocaleString()} listings are in your store.</b> Run it again any time to pick up new eBay listings and price changes.</p>${see}`

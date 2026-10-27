@@ -57,6 +57,7 @@
           try { await ads(`/campaigns/${c.id}/paid`, { method: 'POST', body: JSON.stringify({ quoteId: q.quoteId, txid: r.txid, beef: hex(r.tx) }) }); break; }
           catch (er) { if (k >= 5 || !/not_seen|409/.test(er.message)) throw er; btn.textContent = 'Waiting for the network…'; await new Promise((ok) => setTimeout(ok, 3000)); }
         }
+        BMX.track('promote_paid', { cents: Math.round((+f.usd.value || 10) * 100) });
         f.innerHTML = `<p><b>Paid. Your ad is waiting for review</b> and starts as soon as it’s approved.</p><div class="ck-row"><button class="btn" type="button" data-x>Close</button></div>`;
         f.querySelector('[data-x]').onclick = () => m.remove();
       } catch (er) {

@@ -36,7 +36,7 @@
   document.body.insertAdjacentHTML('beforeend', `
   <div class="foot"><div class="wrap">
     <span>Paid in BSV with <a class="u" href="https://bwalletx.com">bWalletX</a> · a b*X app from The Bitcoin Corporation</span>
-    <a href="/sell">Move your eBay store</a><a href="https://bwalletx.com/privacy">Privacy</a><a href="https://bwalletx.com/terms">Terms</a>
+    <a href="/sell">Move your eBay store</a><a href="/privacy">Privacy</a><a href="https://bwalletx.com/terms">Terms</a>
   </div></div>`);
   // bAds: square ads in a left column on browsing pages (never on item, checkout or account pages)
   const railMain = document.body.hasAttribute('data-rail') && document.querySelector('main');
@@ -146,5 +146,21 @@
     </div>`;
   // bMail compose in the buyer's own wallet: they review and press Send. `to` is the store's $handle or paymail.
   const mailTo = (to, subject, body) => 'https://web.bwalletx.com/?' + new URLSearchParams({ mail: 'compose', ...(to ? { to } : {}), subject, body });
-  window.BMX = { mailTo, signInBox, esc, usd, card, picture, watch, recent, seen, toggleWatch, watching, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
+  // Visit counts (see /privacy): Vercel Web Analytics sets no cookies. The campaign that first brought this browser
+  // (utm_* tags, a ?ref=$handle referral, or the referring site) is kept in localStorage and sent with each count.
+  const va = document.createElement('script'); va.defer = true; va.src = '/_vercel/insights/script.js'; document.head.appendChild(va);
+  const cmp = (() => {
+    const ls = { get: () => { try { return JSON.parse(localStorage.getItem('bmx-cmp') || 'null'); } catch { return null; } }, set: (v) => { try { localStorage.setItem('bmx-cmp', JSON.stringify(v)); } catch {} } };
+    const ref = params.get('ref'), host = (() => { try { const h = new URL(document.referrer).host; return h && !/(^|\.)bmarketx\.com$/.test(h) ? h : ''; } catch { return ''; } })();
+    const now = params.get('utm_campaign') || params.get('utm_source') || ref
+      ? { campaign: params.get('utm_campaign') || (ref ? `ref:${ref}` : null), source: params.get('utm_source') || host || null, medium: params.get('utm_medium') || (ref ? 'referral' : null) }
+      : host ? { campaign: null, source: host, medium: 'referral' } : null;
+    if (now && !ls.get()) ls.set(now);   // first touch wins
+    return now || ls.get() || {};
+  })();
+  const track = (event, extra = {}) => {
+    try { fetch('/api/event', { method: 'POST', keepalive: true, credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ event, ...cmp, page: location.pathname, ...extra }) }).catch(() => {}); } catch {}
+  };
+  try { if (!sessionStorage.getItem('bmx-v')) { sessionStorage.setItem('bmx-v', 1); track('visit'); } } catch {}
+  window.BMX = { track, mailTo, signInBox, esc, usd, card, picture, watch, recent, seen, toggleWatch, watching, after, api, pager, params, alertBar, priceReady, fillBsv, get usdPerBsv() { return usdPerBsv; } };
 })();

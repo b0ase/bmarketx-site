@@ -57,6 +57,7 @@
       const btn = f.querySelector('button:not([data-x])'); btn.disabled = true; btn.textContent = 'Getting the price…';
       try {
         const { order: o } = await api('/api/order', { method: 'POST', body: JSON.stringify({ action: 'quote', listingId: item.id, qty: +f.qty.value || 1, shipTo }) });
+        BMX.track('checkout_started', { cents: o.total_cents });
         review(m, o, store);
       } catch (er) { e.textContent = er.message; btn.disabled = false; btn.textContent = 'Review payment'; }
     };
@@ -89,6 +90,7 @@
         }
         btn.textContent = 'Checking the payment…';
         await api('/api/order', { method: 'POST', body: JSON.stringify({ action: 'pay', id: o.id, ...sent }) });
+        BMX.track('purchase', { cents: o.total_cents });
         box.innerHTML = `<h3>Paid. Thank you!</h3><p>${esc(store.display_name)} has your order and your address. Your receipt is in <a class="u" href="/my#purchases">Purchase history</a>.</p>
           <p class="muted" style="font-size:12px">Payment <a class="u" target="_blank" rel="noopener" href="https://whatsonchain.com/tx/${esc(sent.txid)}">${esc(sent.txid.slice(0, 16))}…</a></p>
           <div class="ck-row"><a class="btn" href="/my#purchases">See my order</a></div>`;

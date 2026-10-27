@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stats · bMarketX</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>
+.st table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;margin:8px 0 24px}
+.st th,.st td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.st th:first-child,.st td:first-child{text-align:left}
+.st th{font-size:12px;color:var(--muted);font-weight:600}
+.st .scroll{overflow-x:auto}
+.st .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0 24px}
+.st .tile{border:1px solid var(--line);border-radius:12px;padding:14px}.st .tile b{display:block;font-size:26px}.st .tile span{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body data-page="stats">
+<main class="wrap st"><h1>bMarketX stats</h1>
+  <p class="muted">Cookie-free counts (see <a class="u" href="/privacy">Privacy</a>). Page views and referrers are in Vercel Web Analytics.
+    Period: <select id="days"><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select></p>
+  <div id="out"><p class="muted">Loading…</p></div>
+</main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+<script>
+(() => {
+  const { esc, api, usd } = BMX;
+  const STEPS = [['visit', 'Visits'], ['wallet_connected', 'Wallets connected'], ['store_opened', 'Stores opened'], ['listings_imported', 'Imports'], ['checkout_started', 'Checkouts started'], ['purchase', 'Sales'], ['promote_paid', 'Promotions']];
+  async function load() {
+    try {
+      const { events } = await api('/api/event?days=' + days.value);
+      const count = (list, e) => list.filter((x) => x.event === e).length;
+      const sales = events.filter((x) => x.event === 'purchase');
+      const items = events.filter((x) => x.event === 'listings_imported').reduce((a, x) => a + (x.n || 0), 0);
+      const tiles = STEPS.map(([e, t]) => `<div class="tile"><b>${count(events, e).toLocaleString()}</b><span>${t}</span></div>`).join('')
+        + `<div class="tile"><b>${items.toLocaleString()}</b><span>Listings brought in</span></div><div class="tile"><b>${usd(sales.reduce((a, x) => a + (x.cents || 0), 0))}</b><span>Sales value</span></div>`;
+      // the funnel by campaign (or referring site), busiest first
+      const key = (x) => x.campaign || (x.source ? `(${x.source})` : '(direct)');
+      const groups = new Map();
+      for (const x of events) { const k = key(x); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(x); }
+      const rowsHtml = [...groups].sort((a, b) => b[1].length - a[1].length).map(([k, list]) =>
+        `<tr><td>${esc(k)}</td>${STEPS.map(([e]) => `<td>${count(list, e) || ''}</td>`).join('')}<td>${usd(list.filter((x) => x.event === 'purchase').reduce((a, x) => a + (x.cents || 0), 0))}</td></tr>`).join('');
+      // per day, newest first
+      const byDay = new Map();
+      for (const x of events) { const d = x.at.slice(0, 10); if (!byDay.has(d)) byDay.set(d, []); byDay.get(d).push(x); }
+      const dayHtml = [...byDay].map(([d, list]) => `<tr><td>${d}</td>${STEPS.map(([e]) => `<td>${count(list, e) || ''}</td>`).join('')}</tr>`).join('');
+      const head = (first, extra = '') => `<tr><th>${first}</th>${STEPS.map(([, t]) => `<th>${t}</th>`).join('')}${extra}</tr>`;
+      out.innerHTML = `<div class="tiles">${tiles}</div>
+        <h2 class="sec">By campaign</h2><div class="scroll"><table>${head('Campaign or referrer', '<th>Sales value</th>')}${rowsHtml || '<tr><td colspan="9">Nothing yet.</td></tr>'}</table></div>
+        <h2 class="sec">By day</h2><div class="scroll"><table>${head('Day')}${dayHtml || '<tr><td colspan="8">Nothing yet.</td></tr>'}</table></div>
+        <p class="muted" style="font-size:12px">Tag links like <code>bmarketx.com/?utm_source=x&amp;utm_campaign=mabel-film</code>. Referral links (<code>?ref=$handle</code>) show as <code>ref:$handle</code>.</p>`;
+    } catch (e) { out.innerHTML = e.status === 403 ? BMX.signInBox('Sign in with the bMarketX team wallet to see stats.') : `<p class="err">${esc(e.message)}</p>`; }
+  }
+  days.onchange = load;
+  document.addEventListener('bmarketx-wallet', load);
+  load();
+})();
+</script>
+</body>
+</html>

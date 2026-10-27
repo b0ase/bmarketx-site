@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · bMarketX</title>
+<meta name="description" content="What bMarketX.com keeps, why, and for how long.">
+<meta property="og:title" content="Privacy · bMarketX">
+<meta property="og:description" content="What bMarketX.com keeps, why, and for how long.">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+<meta property="og:image" content="https://bmarketx.com/brand/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>.legal{max-width:760px}.legal h2{margin-top:28px}.legal li{margin:6px 0}.legal p,.legal li{line-height:1.6}</style>
+</head>
+<body data-page="privacy">
+<main class="wrap"><article class="legal">
+  <h1>Privacy</h1>
+  <p class="muted">bMarketX.com is run by The Bitcoin Corporation Ltd. Last updated 27 October 2026. This page covers the bMarketX
+    website. Your wallet is covered by the <a class="u" href="https://bwalletx.com/privacy">bWalletX privacy policy</a>.</p>
+
+  <h2>In short</h2>
+  <p>Your bWalletX is your account: we don't ask for your name, email or a password. We keep what a marketplace needs to
+    work (stores, listings, orders and the address you post to), we count visits without cookies so we know which
+    campaigns work, and we never sell your data, share it with advertisers or follow you around other sites.</p>
+
+  <h2>What we keep</h2>
+  <ul>
+    <li><b>Your wallet’s public identity key</b>, when you connect bWalletX. It is your account. A signed cookie keeps you
+      signed in on this browser for up to 7 days.</li>
+    <li><b>Stores and listings</b> you create or bring from eBay: names, prices, photos, descriptions and stock. These are
+      public.</li>
+    <li><b>Orders</b>: the listing, price, the BSV payment and its transaction, the buyer’s and seller’s identity keys,
+      and the <b>postal address</b> you enter at checkout. Only you and that seller can see the address. We keep orders
+      as your record of the sale.</li>
+    <li><b>eBay, if you sign in with eBay</b>: your eBay user ID, username or store name, and your positive-feedback
+      percentage, to verify your store. eBay’s sign-in token is kept for at most 2 hours in a locked cookie on your
+      browser, only to bring your listings across, and never in our database. If you close your eBay account, eBay tells
+      us and we delete what we hold from eBay about you. Linking eBay inside bWalletX stores nothing here.</li>
+    <li><b>Feedback</b> you send with the “Give feedback” button: the score, your comment, and your email or wallet key
+      only if you choose to add them.</li>
+    <li><b>Abuse limits</b>: a short-lived counter per wallet or IP address, so nobody can flood the site. Deleted within a
+      day.</li>
+  </ul>
+
+  <h2>Visit counts and campaigns</h2>
+  <p>We count page views and where visits come from (the referring site, and campaign tags such as
+    <code>?utm_campaign=…</code> on our links) using Vercel Web Analytics, which sets <b>no cookies</b> and doesn’t
+    identify you. We also count a few steps that tell us bMarketX is working: a wallet connected, a store opened,
+    listings brought in, a sale. Each is recorded with the campaign that brought the visit, if any, not with your name,
+    address or IP address. We use these counts only to improve bMarketX and decide where to advertise. There are no
+    advertising identifiers, no third-party trackers and no cross-site tracking.</p>
+
+  <h2>Ads on bMarketX</h2>
+  <p>Some pages show square bAds down the side, served by our own ad server at bChatX (also The Bitcoin Corporation
+    Ltd). It counts how often each ad is seen and clicked, without cookies. Ads are never targeted at you personally.</p>
+
+  <h2>Kept in your browser only</h2>
+  <p>Your Watchlist, Recently viewed, the postal address you last used at checkout and the campaign that first brought
+    you here are stored in your browser (localStorage). We can’t see them. Clearing your browser data removes them.</p>
+
+  <h2>Services we use</h2>
+  <ul>
+    <li><b>Vercel</b> hosts the site and runs the visit counts.</li>
+    <li><b>Our own database</b> on Hetzner servers holds stores, listings and orders.</li>
+    <li><b>WhatsOnChain</b>: the live BSV price, and checking that payments reached the network.</li>
+    <li><b>eBay</b>: Sign in with eBay, your listings and photos (photos load from eBay’s image servers).</li>
+    <li><b>Google Fonts, unpkg and cdnjs</b> deliver fonts and scripts to your browser, which shares your IP address with them.</li>
+  </ul>
+
+  <h2>Payments are public</h2>
+  <p>Payments go straight from your wallet to the seller’s on the BSV blockchain, which is public. The transaction is
+    visible to anyone; your name and address are not in it.</p>
+
+  <h2>Your choices</h2>
+  <p>You can ask to see, correct or delete what we hold about you by writing to
+    <a class="u" href="mailto:support@bwalletx.com">support@bwalletx.com</a>. We will remove your stores, listings and
+    eBay details; we keep order records where the law requires us to keep records of sales. Under UK and EU law you can
+    also complain to the Information Commissioner’s Office (ico.org.uk).</p>
+</article></main>
+<script src="https://unpkg.com/@bwalletx/connect@0.5.0/dist/bwalletx-connect.global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="/app.js"></script>
+<script src="/bwx.js"></script>
+</body>
+</html>
