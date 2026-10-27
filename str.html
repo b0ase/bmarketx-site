@@ -60,9 +60,24 @@
     root.querySelector('[data-share]').onclick = () => (navigator.share ? navigator.share({ title: s.display_name, url: location.href }) : navigator.clipboard?.writeText(location.href).then(() => BMX.alertBar('Link copied.')));
     root.querySelectorAll('[data-soon2]').forEach((b) => (b.onclick = (e) => { e.preventDefault(); BMX.alertBar('Coming soon.'); }));
   } catch (e) {
-    root.innerHTML = e.status === 404
-      ? `<div class="empty"><h2>No store at /str/${esc(handle)} yet</h2><p>Is it your eBay store? <a class="u" href="/sell?store=${encodeURIComponent(handle)}">Move it to bMarketX</a>.</p></div>`
-      : `<div class="empty">${esc(e.message)}</div>`;
+    if (e.status !== 404 || !/^[a-z0-9._-]{2,64}$/i.test(handle)) { root.innerHTML = `<div class="empty">${esc(e.message)}</div>`; return; }
+    // Unclaimed: show only the name from the address. Nothing from the eBay store is shown until its owner claims it.
+    const h = esc(handle.toLowerCase()), claim = `/sell?store=${encodeURIComponent(handle.toLowerCase())}#link`;
+    document.title = `Claim ${handle} | bMarketX`;
+    root.innerHTML = `<section class="claim">
+      <div class="claim-av" aria-hidden="true">${esc(handle[0].toUpperCase())}</div>
+      <span class="kicker">Unclaimed store</span>
+      <h1>bmarketx.com/str/${h}</h1>
+      <p>This address is kept for the eBay seller <b>${h}</b>. If that’s you, claim it in about a minute: your listings, prices, stock and feedback come across, and buyers pay you in BSV straight to your wallet.</p>
+      <ol class="claim-steps">
+        <li><b>Sign in with bWalletX.</b> Your wallet is your account. No email, no password.</li>
+        <li><b>Prove it’s yours.</b> Add a short code we give you to your eBay store description.</li>
+        <li><b>Your store opens here</b>, with the verified eBay seller mark and your feedback.</li>
+      </ol>
+      <p class="claim-cta"><a class="btn" href="${claim}" id="claimBtn">Sign in to claim</a><a class="btn ghost" href="/">Browse bMarketX</a></p>
+      <p class="muted" style="font-size:12px">Not on eBay? <a class="u" href="/my#selling">Open a new store</a> with any free address. bMarketX isn’t affiliated with eBay.</p>
+    </section>`;
+    fetch('/api/bwalletx/session', { credentials: 'same-origin' }).then((r) => r.json()).then((j) => { if (j.identityKey) document.getElementById('claimBtn').textContent = 'Claim this store'; }).catch(() => {});
   }
 })();
 </script>
