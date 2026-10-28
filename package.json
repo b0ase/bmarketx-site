@@ -7,34 +7,5 @@
     "@bwalletx/connect": "0.5.4",
     "opentype.js": "1.3.4",
     "sharp": "0.34.4"
-  },
-  "scripts": {
-    "eslint": "eslint \"**/*.{js,cjs,ts,mjs,jsx,tsx}\"",
-    "lint": "npm run eslint",
-    "lintfix": "npm run eslint -- --fix",
-    "postlint": "template-oss-check",
-    "template-oss-apply": "template-oss-apply --force",
-    "snap": "tap",
-    "test": "tap",
-    "posttest": "npm run lint"
-  },
-  "author": "GitHub Inc.",
-  "files": [
-    "bin/",
-    "lib/"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/b0ase/bmarketx-site.git"
-  },
-  "templateOSS": {
-    "//@npmcli/template-oss": "This file is partially managed by @npmcli/template-oss. Edits may be overwritten.",
-    "version": "5.0.0"
-  },
-  "tap": {
-    "nyc-arg": [
-      "--exclude",
-      "tap-snapshots/**"
-    ]
   }
 }

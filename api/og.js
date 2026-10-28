@@ -1,5 +1,5 @@
 // GET /api/og?claim=<handle> -> 1200×630 PNG share picture for an unclaimed store address:
-// "Claim your store." with the store name in the brand gold. Built from brand/og.svg (its headline removed) with the
+// "Claim your store." with the store name in the brand gold. GET /api/og?page=stats -> the same for /stats. Built from brand/og.svg (its headline removed) with the
 // text drawn as paths from Space Grotesk 700 (lib/fonts, OFL), so the server needs no installed fonts.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -24,11 +24,14 @@ function line(text, x, y, size, maxW, fill) {
 
 export default async function handler(req, res) {
   const h = String(req.query.claim || '').toLowerCase();
-  if (!/^[a-z0-9._-]{2,64}$/.test(h)) return res.status(404).end();
+  const stats = req.query.page === 'stats';
+  if (!stats && !/^[a-z0-9._-]{2,64}$/.test(h)) return res.status(404).end();
   try {
     load();
-    const text = line('Claim your store.', 72, 290, 84, 760, '#F1EAD9') + line(h, 72, 392, 92, 760, 'url(#hg)')
-      + line('Kept for the eBay seller. Paid in BSV.', 74, 468, 30, 760, '#CFCABD');
+    const [top, gold, sub] = stats ? ['How we’re doing.', 'Stats.', 'Visits, wallets, stores and sales by campaign.']
+      : ['Claim your store.', h, 'Kept for the eBay seller. Paid in BSV.'];
+    const text = line(top, 72, 290, 84, 760, '#F1EAD9') + line(gold, 72, 392, 92, 760, 'url(#hg)')
+      + line(sub, 74, 468, 30, 760, '#CFCABD');
     const svg = base.replace('</svg>', `${text}</svg>`);
     const png = await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
     res.setHeader('content-type', 'image/png');
