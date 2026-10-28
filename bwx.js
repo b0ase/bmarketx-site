@@ -27,6 +27,7 @@
     b.innerHTML = key ? `<span class="bwx-dot"></span>bWalletX ${short(key)}` : 'Connect bWalletX';
     b.title = key ? 'Connected. Click to disconnect.' : 'Connect your bWalletX';
     b.onclick = key ? disconnect : connect;
+    if (!key) C.bindPrewarm?.(b);   // wakes the wallet on hover, focus or touch, before the click
     s.appendChild(b);
     if (!key && s.closest('.top')) s.insertAdjacentHTML('beforeend', ' <a class="getw-link" href="https://bwalletx.com/get" target="_blank" rel="noopener">Get bWalletX</a>');
   });
@@ -48,10 +49,12 @@
     return modal.querySelector('.bwx-card');
   };
 
+  const LABEL = { finding: 'Opening your wallet…', opening: 'Approve in bWalletX…', signing: 'Approve in bWalletX…', pairing: 'Scan the QR…' };
   async function connect() {
     let ticket = null;
     try {
       const r = await C.signInWithBwalletX({
+        onStatus: (st) => { if (LABEL[st]) slots().forEach((x) => { const btn = x.querySelector('.bwx-btn'); if (btn) btn.textContent = LABEL[st]; }); },
         challenge: async (identityKey) => { const ch = await post('/api/bwalletx/challenge', { identityKey }); ticket = ch.ticket; return ch; },
         pairing: {
           onLink: (link) => {
@@ -77,6 +80,7 @@
       } else {
         show(`<h3>Couldn’t connect</h3><p style="color:#ff8a7a">${esc((e && e.message) || 'Try again.')}</p>`);
       }
+      draw();   // puts the button label back after a status message
     }
   }
   async function disconnect() {
@@ -86,5 +90,6 @@
   }
   fetch('/api/bwalletx/session', { credentials: 'same-origin' }).then((r) => r.json()).then((j) => { key = j.identityKey || null; draw(); }).catch(draw);
   draw();
+  try { C.prewarmBwalletX?.(); } catch {}
   new MutationObserver(() => { if (slots().some((x) => !x.firstChild)) draw(); }).observe(document.body, { childList: true, subtree: true });
 })();

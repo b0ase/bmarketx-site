@@ -12,8 +12,8 @@ importers:
         specifier: 2.8.10
         version: 2.8.10
       '@bwalletx/connect':
-        specifier: 0.5.0
-        version: 0.5.0(@bsv/sdk@2.8.10)
+        specifier: 0.5.4
+        version: 0.5.4(@bsv/sdk@2.8.10)
       opentype.js:
         specifier: 1.3.4
         version: 1.3.4
@@ -27,8 +27,8 @@ packages:
     resolution: {integrity: sha512-0KJxu772gbF2wKmD2dASciHYfAmo87ddXYknrMgYzGmI683l0trNcZHo0SYLWO5xZqJG5EB4ROyLuWXvhLCYFg==}
     engines: {node: '>=22'}
 
-  '@bwalletx/connect@0.5.0':
-    resolution: {integrity: sha512-Tjmjzf1kddD7/fmW0hVzAPLdAG0ZxPvXdlePiVmdnY3yjWYMgULr6U1dNFui1j7avuf5jqf5/3tdc8E7WTJQxg==}
+  '@bwalletx/connect@0.5.4':
+    resolution: {integrity: sha512-fWqwX8wY0sSGSi27SeIyG2Y5Dbm+Cf78dDAfgINzpJpBNA05q+Eq87hBFwJvDqASc+A4ZU+4YQGOqd764NKm1w==}
     engines: {node: '>=20'}
     peerDependencies:
       '@bsv/sdk': '>=2.2.0 <4'
@@ -217,7 +217,7 @@ snapshots:
 
   '@bsv/sdk@2.8.10': {}
 
-  '@bwalletx/connect@0.5.0(@bsv/sdk@2.8.10)':
+  '@bwalletx/connect@0.5.4(@bsv/sdk@2.8.10)':
     dependencies:
       '@bsv/sdk': 2.8.10
       qrcode-generator: 1.5.2
