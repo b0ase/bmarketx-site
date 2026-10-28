@@ -71,7 +71,7 @@
       document.dispatchEvent(new CustomEvent('bmarketx-wallet', { detail: { identityKey: key } }));
       window.BMX?.track('wallet_connected');
       // first stop after signing in: your account page, unless this page is already a step in selling
-      if (!['sell', 'mint', 'my'].includes(document.body.dataset.page)) location.href = '/my';
+      if (!['sell', 'mint', 'my', 'stats'].includes(document.body.dataset.page)) location.href = '/my';
     } catch (e) {
       if (e && e.code === 'NOT_FOUND') {
         show(`<h3>No bWalletX found</h3><p>Get the bWalletX extension or app, or use the web wallet.</p><p><a class="bwx-btn on" href="https://bwalletx.com/get">Get bWalletX</a></p>`);
