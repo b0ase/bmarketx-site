@@ -36,7 +36,7 @@
   document.body.insertAdjacentHTML('beforeend', `
   <div class="foot"><div class="wrap">
     <span>Paid in BSV with <a class="u" href="https://bwalletx.com">bWalletX</a> · a b*X app from The Bitcoin Corporation</span>
-    <a href="/sell">Move your eBay store</a><a href="/privacy">Privacy</a><a href="https://bwalletx.com/terms">Terms</a>
+    <a href="/sell">Move your eBay store</a><a href="https://bwalletx.com/b-family">Part of the bWalletX family</a><a href="/privacy">Privacy</a><a href="https://bwalletx.com/terms">Terms</a>
   </div></div>`);
   // bAds: square ads in a left column on browsing pages (never on item, checkout or account pages)
   const railMain = document.body.hasAttribute('data-rail') && document.querySelector('main');
