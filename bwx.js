@@ -29,7 +29,8 @@
     b.onclick = key ? disconnect : connect;
     if (!key) C.bindPrewarm?.(b);   // wakes the wallet on hover, focus or touch, before the click
     s.appendChild(b);
-    if (!key && s.closest('.top')) s.insertAdjacentHTML('beforeend', ' <a class="getw-link" href="https://bwalletx.com/get" target="_blank" rel="noopener">Get bWalletX</a>');
+    // One wallet control in the top bar (owner, 28 Oct 2026): no Get link beside Connect. Connect with no wallet
+    // found opens "No bWalletX found" with Get bWalletX.
   });
   const post = async (url, body) => {
     const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' });
