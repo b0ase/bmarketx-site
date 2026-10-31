@@ -31,6 +31,30 @@ const CATS = {
   toys: { name: 'Toys', img: 'cat-toys', blurb: 'Tin toys, diecast, figures and games.', subs: ['Diecast', 'Figures', 'Tin toys', 'Games', 'Puzzles'] },
   electronics: { name: 'Electronics', img: 'cat-electronics', blurb: 'Cameras, audio, computers and retro tech.', subs: ['Cameras', 'Audio', 'Computers', 'Phones', 'Retro'] },
 };
+// bMusic store on /c/records: albums from bMusicX.com. Minting is coming soon, so there is no buy button yet.
+const BMUSIC = 'https://www.bmusicx.com';
+const ALBUMS = [
+  { slug: 'welcome-to-terrornode', title: 'WELCOME TO TERRORNODE', artist: 'NPGX', cover: 'terrornode-cover', tracks: 21 },
+  { slug: 'terrornode-alternate-takes', title: 'TERRORNODE: Alternate Takes', artist: 'NPGX', cover: 'terrornode-alternate-takes' },
+  { slug: 'void-mass-ep', title: 'Void Mass EP', artist: 'Vivienne Void', cover: 'void-mass-ep', tracks: 3 },
+  { slug: 'paper-reed-circuit-part-b', title: 'Paper Reed Circuit (Part B)', artist: 'VexVoid', cover: 'paper-reed-circuit-part-b', tracks: 1 },
+];
+const TIERS = [['Single', '$0.99'], ['Album', '$9.99'], ['Music video', '$9.99'], ['Video album', '$99']];
+function bmusic() {
+  const { esc } = BMX;
+  return `<h2 class="sec">bMusic store</h2>
+    <p class="muted" style="margin:-6px 0 14px">Albums from <a class="u" href="${BMUSIC}" target="_blank" rel="noopener">bMusicX.com</a>. Listen there, paid by the second in bWalletX.</p>
+    <div class="grid">${ALBUMS.map((a) => `<a class="card" href="${BMUSIC}/album/${a.slug}" target="_blank" rel="noopener">
+      <div class="img"><img src="${BMUSIC}/bmx/covers/${a.cover}.webp" alt="${esc(a.title)} cover" loading="lazy" style="width:100%;height:100%;object-fit:cover"></div>
+      <div style="margin-top:8px;font-weight:700">${esc(a.title)}</div>
+      <div class="muted" style="font-size:13px">${esc(a.artist)}${a.tracks ? ` · ${a.tracks} track${a.tracks > 1 ? 's' : ''}` : ''}</div></a>`).join('')}</div>
+    <section class="note" style="margin:0 0 30px">
+      <b>Minting coming soon.</b> Each song will have 100 versions.
+      <div class="tools" style="margin:10px 0">${TIERS.map(([t, p]) => `<span class="pill">${t} <b>${p}</b></span>`).join('')}</div>
+      <p class="muted" style="font-size:13px;margin:0 0 12px">50% to version owners. Ninja Punk Girls Ltd keeps the IP. The Original is never for sale.</p>
+      <a class="btn" href="https://bwalletx.com/get" target="_blank" rel="noopener">Get bWalletX to be ready</a>
+    </section>`;
+}
 (async () => {
   const { esc, api, after, card } = BMX;
   const slug = location.pathname.split('/')[2] || BMX.params.get('cat') || 'fashion';
@@ -42,6 +66,7 @@ const CATS = {
       <div class="hero-copy" style="padding:44px 40px"><h1>${c.name}</h1><p>${c.blurb}</p><a class="btn" href="/search?q=${encodeURIComponent(c.name.split(' ')[0])}">Shop all</a></div></section>
     <h2 class="sec">Shop by category</h2>
     <div class="tools">${c.subs.map((s) => `<a class="pill" href="/search?q=${encodeURIComponent(s)}">${esc(s)}</a>`).join('')}</div>
+    ${slug === 'records' ? bmusic() : ''}
     <h2 class="sec">Latest in ${c.name}</h2><div class="grid" id="latest"><div class="empty">Loading…</div></div>
     <section class="note" style="margin:30px 0"><b>Sell ${c.name.toLowerCase()} on bMarketX.com.</b> Move your eBay store in a minute, or list one item. <a class="u" href="/list">List an item</a></section>`;
   try {
